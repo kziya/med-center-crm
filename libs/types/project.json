@@ -16,7 +16,7 @@
       }
     },
     "test": {
-      "executor": "@nx/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "command": "echo 'Skipping tests for types lib'"
       }
