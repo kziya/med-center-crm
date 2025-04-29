@@ -14,6 +14,12 @@
         "tsConfig": "libs/types/tsconfig.lib.json",
         "assets": ["libs/types/*.md"]
       }
+    },
+    "test": {
+      "executor": "@nx/workspace:run-commands",
+      "options": {
+        "command": "echo 'Skipping tests for types lib'"
+      }
     }
   }
 }
