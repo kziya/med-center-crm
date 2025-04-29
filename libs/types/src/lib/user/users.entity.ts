@@ -1,0 +1,43 @@
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserRole } from './user-role.enum';
+import { UserStatus } from './user-status.enum';
+
+@Entity('users')
+export class Users {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'varchar', length: 150, unique: true })
+  email: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  password_hash: string;
+
+  @Column({ name: 'full_name', type: 'varchar', length: 100 })
+  full_name: string;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  profile_picture_url?: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  role: UserRole;
+
+  @Column({ type: 'varchar', length: 20 })
+  status: UserStatus;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+}

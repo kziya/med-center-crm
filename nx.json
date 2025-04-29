@@ -37,5 +37,12 @@
       "exclude": ["apps/med-center-crm-e2e/**/*"]
     }
   ],
-  "nxCloudAccessToken": "Yzg5OWVjMTQtZGI1YS00OWUyLWE5ODctY2Y5ODYyZjc5OGRhfHJlYWQtd3JpdGU="
+  "nxCloudAccessToken": "Yzg5OWVjMTQtZGI1YS00OWUyLWE5ODctY2Y5ODYyZjc5OGRhfHJlYWQtd3JpdGU=",
+  "targetDefaults": {
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    }
+  }
 }
