@@ -18,10 +18,6 @@ export class AppointmentDetails {
   @Column()
   appointment_id!: number;
 
-  @OneToOne(() => Appointments, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'appointment_id' })
-  appointment!: Appointments;
-
   @Column({ type: 'timestamp' })
   visit_date!: Date;
 
@@ -39,4 +35,8 @@ export class AppointmentDetails {
 
   @UpdateDateColumn()
   updated_at!: Date;
+
+  @OneToOne(() => Appointments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'appointment_id' })
+  appointment!: Appointments;
 }

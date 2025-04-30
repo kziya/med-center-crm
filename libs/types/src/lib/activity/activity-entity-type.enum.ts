@@ -1,8 +1,8 @@
 export enum ActivityEntityType {
-  USER = 'user',
-  APPOINTMENT = 'appointment',
-  LAB_RESULT = 'lab_result',
-  DOCTOR_REVIEW = 'doctor_review',
-  PATIENT_DETAIL = 'patient_detail',
-  DOCTOR_DETAIL = 'doctor_detail',
+  USER = 'users',
+  APPOINTMENT = 'appointments',
+  LAB_RESULT = 'lab_results',
+  DOCTOR_REVIEW = 'doctor_reviews',
+  PATIENT_DETAIL = 'patient_details',
+  DOCTOR_DETAIL = 'doctor_details',
 }

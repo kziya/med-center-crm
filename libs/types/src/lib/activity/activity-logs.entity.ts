@@ -20,10 +20,6 @@ export class ActivityLogs {
   @Column({ nullable: true })
   user_id!: number;
 
-  @ManyToOne(() => Users, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'user_id' })
-  user?: Users;
-
   @Column({ nullable: true })
   entity_id!: number;
 
@@ -44,4 +40,8 @@ export class ActivityLogs {
 
   @UpdateDateColumn()
   updated_at!: Date;
+
+  @ManyToOne(() => Users, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'user_id' })
+  user?: Users;
 }
