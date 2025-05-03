@@ -1,10 +1,9 @@
-
 const { NxWebpackPlugin } = require('@nx/webpack');
 const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, '../../dist/apps/med-center-crm'),
+    path: join(__dirname, '../../dist/apps/auth-service'),
   },
   plugins: [
     new NxWebpackPlugin({
@@ -12,10 +11,9 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ["./src/assets"],
+      assets: ['./src/assets'],
       optimization: false,
       outputHashing: 'none',
-    })
+    }),
   ],
 };
-

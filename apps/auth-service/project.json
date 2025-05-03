@@ -1,7 +1,7 @@
 {
-  "name": "med-center-crm",
+  "name": "auth-service",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/med-center-crm/src",
+  "sourceRoot": "apps/auth-service/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,14 +9,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "med-center-crm:build"
+        "buildTarget": "auth-service:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "med-center-crm:build:development"
+          "buildTarget": "auth-service:build:development"
         },
         "production": {
-          "buildTarget": "med-center-crm:build:production"
+          "buildTarget": "auth-service:build:production"
         }
       }
     }

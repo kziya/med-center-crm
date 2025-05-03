@@ -16,6 +16,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@med-center-crm/auth": ["libs/auth/src/index.ts"],
       "@med-center-crm/types": ["libs/types/src/index.ts"]
     }
   },
