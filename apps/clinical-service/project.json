@@ -1,0 +1,24 @@
+{
+  "name": "clinical-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/clinical-service/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "clinical-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "clinical-service:build:development"
+        },
+        "production": {
+          "buildTarget": "clinical-service:build:production"
+        }
+      }
+    }
+  }
+}
