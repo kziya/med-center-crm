@@ -16,9 +16,10 @@
       }
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nx/jest:jest",
       "options": {
-        "command": "echo 'Skipping tests for types lib'"
+        "passWithNoTests": true,
+        "jestConfig": "libs/types/jest.config.ts"
       }
     }
   }
