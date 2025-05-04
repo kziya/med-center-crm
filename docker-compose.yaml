@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - JWT_ACCESS_TOKEN_SECRET=secret
+      - POSTGRES_URL=postgresql://root:root@db:5432/main
+
   db:
     image: postgres:17
     container_name: postgres_db
