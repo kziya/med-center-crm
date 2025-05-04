@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserTokenPayload } from '@med-center-crm/types';
+import { UserTokenPayload } from '../types';
 
 @Injectable()
 export class CommonAuthStrategy extends PassportStrategy(Strategy) {

@@ -1,5 +1,8 @@
 import { Controller, Post } from '@nestjs/common';
+
+import { CreatePatientDto } from '@med-center-crm/types';
 import { AuthService } from './auth.service';
+import { AuthResult } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
@@ -11,7 +14,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(): Promise<void> {
+  async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
     return;
   }
 }

@@ -3,7 +3,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager } from 'typeorm';
 
 import { CommonUserService } from '@med-center-crm/user';
-import { CreatePatientDto, PatientDetails } from '@med-center-crm/types';
+import { CreatePatientDto, PatientDetails, Users } from '@med-center-crm/types';
 
 @Injectable()
 export class CommonPatientService {
@@ -12,9 +12,12 @@ export class CommonPatientService {
     @InjectEntityManager() private readonly entityManager: EntityManager
   ) {}
 
-  async createPatient(createPatientDto: CreatePatientDto): Promise<void> {
+  async createPatient(
+    createPatientDto: CreatePatientDto
+  ): Promise<Users | null> {
+    let user = null;
     await this.entityManager.transaction(async (transactionManager) => {
-      const user = await this.commonUserService.createUser(
+      user = await this.commonUserService.createUser(
         transactionManager,
         createPatientDto
       );
@@ -27,6 +30,6 @@ export class CommonPatientService {
       });
     });
 
-    return;
+    return user;
   }
 }

@@ -2,8 +2,9 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { Reflector } from '@nestjs/core';
 
-import { UserRole, UserTokenPayload } from '@med-center-crm/types';
+import { UserRole } from '@med-center-crm/types';
 import { ROLES_KEY } from '../decorators';
+import { UserTokenPayload } from '../types';
 
 @Injectable()
 export class CommonRoleGuard implements CanActivate {
