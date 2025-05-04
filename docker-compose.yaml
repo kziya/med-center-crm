@@ -10,8 +10,11 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - JWT_ACCESS_TOKEN_SECRET=secret
       - POSTGRES_URL=postgresql://root:root@db:5432/main
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - JWT_ACCESS_TOKEN_TTL=15m
+      - JWT_REFRESH_TOKEN_SECRET=some-secret
+      - JWT_REFRESH_TOKEN_TTL=1d
 
   db:
     image: postgres:17

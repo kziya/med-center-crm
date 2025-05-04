@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-
-import { CommonPatientService } from './patient.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { CommonUserModule } from '@med-center-crm/user';
+import { CommonPatientService } from './patient.service';
+
 @Module({
-  imports: [TypeOrmModule.forFeature()],
+  imports: [CommonUserModule, TypeOrmModule.forFeature()],
   providers: [CommonPatientService],
   exports: [CommonPatientService],
 })

@@ -9,6 +9,20 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+export class CreateUserContactDto {
+  @IsOptional()
+  @IsString({ message: 'Phone must be a string' })
+  phone?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Address must be a string' })
+  address?: string;
+
+  @IsOptional()
+  @IsString({ message: 'Details must be a string' })
+  details?: string;
+}
+
 export class CreateUserDto {
   @IsEmail({}, { message: 'Email must be a valid email address' })
   email: string;
@@ -25,18 +39,4 @@ export class CreateUserDto {
   @ValidateNested()
   @Type(() => CreateUserContactDto)
   contact: CreateUserContactDto;
-}
-
-export class CreateUserContactDto {
-  @IsOptional()
-  @IsString({ message: 'Phone must be a string' })
-  phone?: string;
-
-  @IsOptional()
-  @IsString({ message: 'Address must be a string' })
-  address?: string;
-
-  @IsOptional()
-  @IsString({ message: 'Details must be a string' })
-  details?: string;
 }
