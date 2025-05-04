@@ -18,7 +18,10 @@
     "paths": {
       "@med-center-crm/auth": ["libs/auth/src/index.ts"],
       "@med-center-crm/common": ["libs/common/src/index.ts"],
-      "@med-center-crm/types": ["libs/types/src/index.ts"]
+      "@med-center-crm/patient": ["libs/patient/src/index.ts"],
+      "@med-center-crm/redis": ["libs/redis/src/index.ts"],
+      "@med-center-crm/types": ["libs/types/src/index.ts"],
+      "@med-center-crm/user": ["libs/user/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

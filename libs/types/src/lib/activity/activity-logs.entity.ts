@@ -15,7 +15,7 @@ import { ActivityActionType } from './activity-action-type.enum';
 @Entity('activity_logs')
 export class ActivityLogs {
   @PrimaryGeneratedColumn()
-  id!: number;
+  activity_log_id!: number;
 
   @Column({ nullable: true })
   user_id!: number;

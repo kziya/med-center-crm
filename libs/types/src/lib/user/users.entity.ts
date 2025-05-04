@@ -11,7 +11,7 @@ import { UserStatus } from './user-status.enum';
 @Entity('users')
 export class Users {
   @PrimaryGeneratedColumn()
-  id: number;
+  user_id: number;
 
   @Column({ type: 'varchar', length: 150, unique: true })
   email: string;
@@ -21,13 +21,6 @@ export class Users {
 
   @Column({ name: 'full_name', type: 'varchar', length: 100 })
   full_name: string;
-
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  profile_picture_url?: string;
 
   @Column({ type: 'varchar', length: 20 })
   role: UserRole;

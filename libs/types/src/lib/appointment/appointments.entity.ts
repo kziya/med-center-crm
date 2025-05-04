@@ -14,7 +14,7 @@ import { AppointmentStatus } from './appointment-status.enum';
 @Entity('appointments')
 export class Appointments {
   @PrimaryGeneratedColumn()
-  id!: number;
+  appointment_id!: number;
 
   @Column()
   doctor_id!: number;

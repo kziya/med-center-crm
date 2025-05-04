@@ -9,4 +9,9 @@ export class AuthController {
   async login(): Promise<void> {
     return;
   }
+
+  @Post('register')
+  async register(): Promise<void> {
+    return;
+  }
 }

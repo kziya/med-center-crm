@@ -13,7 +13,7 @@ import { Users } from '../user';
 @Entity('patient_details')
 export class PatientDetails {
   @PrimaryGeneratedColumn()
-  id!: number;
+  patient_detail_id!: number;
 
   @Column()
   user_id!: number;

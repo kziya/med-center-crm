@@ -1,8 +1,9 @@
 import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 
-import { CommonAuthGuard } from './common-auth.guard';
-import { CommonAuthStrategy } from './common-auth.strategy';
+import { CommonRoleGuard } from './guards/common-role.guard';
+import { CommonAuthGuard } from './guards';
+import { CommonAuthStrategy } from './strategies';
 
 @Module({
   providers: [
@@ -11,7 +12,10 @@ import { CommonAuthStrategy } from './common-auth.strategy';
       provide: APP_GUARD,
       useClass: CommonAuthGuard,
     },
+    {
+      provide: APP_GUARD,
+      useClass: CommonRoleGuard,
+    },
   ],
-  exports: [],
 })
 export class CommonAuthModule {}

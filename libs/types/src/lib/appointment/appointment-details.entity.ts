@@ -13,7 +13,7 @@ import { Appointments } from './appointments.entity';
 @Entity('appointment_details')
 export class AppointmentDetails {
   @PrimaryGeneratedColumn()
-  id!: number;
+  appointment_detail_id!: number;
 
   @Column()
   appointment_id!: number;

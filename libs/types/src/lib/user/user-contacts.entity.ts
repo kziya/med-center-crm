@@ -13,7 +13,7 @@ import { Users } from './users.entity';
 @Entity('user_contacts')
 export class UserContacts {
   @PrimaryGeneratedColumn()
-  id!: number;
+  user_contact_id!: number;
 
   @Column()
   user_id!: number;

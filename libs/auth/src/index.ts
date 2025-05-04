@@ -1,4 +1,4 @@
+export * from './lib/guards';
 export * from './lib/decorators';
-export * from './lib/common-auth.guard';
-export * from './lib/common-auth.strategy';
+export * from './lib/strategies';
 export * from './lib/common-auth.module';

@@ -1,3 +1,4 @@
+export * from './user.types';
 export * from './users.entity';
 export * from './user-contacts.entity';
 export * from './user-role.enum';
