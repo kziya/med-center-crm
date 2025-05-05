@@ -7,10 +7,19 @@ import {
   Users,
   UserStatus,
 } from '@med-center-crm/types';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class CommonUserService {
+  constructor(
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>
+  ) {}
+
+  async findByEmail(email: string): Promise<Users | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
   async createUser(
     entityManager: EntityManager,
     createUserDto: CreateUserDto
