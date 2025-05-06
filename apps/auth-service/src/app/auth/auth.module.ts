@@ -6,10 +6,12 @@ import { CommonAuthModule } from '@med-center-crm/auth';
 import { CommonPatientModule } from '@med-center-crm/patient';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { CommonUserModule } from '@med-center-crm/user';
 
 @Module({
   imports: [
     CommonAuthModule,
+    CommonUserModule,
     CommonPatientModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
