@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -31,6 +31,37 @@ export class AuthService {
     return this.createAuthResult(user);
   }
 
+  async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
+    const user = await this.commonPatientService.createPatient(
+      createPatientDto
+    );
+
+    return this.createAuthResult(user);
+  }
+
+  async refreshToken(refreshToken: string): Promise<AuthResult> {
+    try {
+      const userTokenPayload: UserTokenPayload = await this.jwtService.verify(
+        refreshToken,
+        {
+          secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+        }
+      );
+
+      const user = await this.commonUserService.findByEmail(
+        userTokenPayload.email
+      );
+
+      if (!user) {
+        throw new BadRequestException();
+      }
+
+      return this.createAuthResult(user);
+    } catch (err) {
+      throw new BadRequestException();
+    }
+  }
+
   private async verifyPassword(
     password: string,
     passwordHash: string
@@ -40,14 +71,6 @@ export class AuthService {
     if (!isCorrectPassword) {
       throw new EmailOrPasswordWrongException();
     }
-  }
-
-  async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
-    const user = await this.commonPatientService.createPatient(
-      createPatientDto
-    );
-
-    return this.createAuthResult(user);
   }
 
   private createAuthResult(user: Users): AuthResult {

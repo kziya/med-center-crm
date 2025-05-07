@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { Users } from '@med-center-crm/types';
 import { JwtService } from '@nestjs/jwt';
 import MockedObject = jest.MockedObject;
+import { BadRequestException } from '@nestjs/common';
 
 jest.mock('bcrypt');
 
@@ -102,6 +103,59 @@ describe('AuthService', () => {
         accessToken: 'signed-token',
         refreshToken: 'signed-token',
       });
+    });
+  });
+
+  describe('refreshToken', () => {
+    it('should return tokens if refresh token is valid and user exists', async () => {
+      const payload = {
+        id: mockUser.user_id,
+        email: mockUser.email,
+        role: mockUser.role,
+      };
+
+      jest.spyOn(jwtService, 'verify').mockResolvedValue(payload as never);
+
+      jest
+        .spyOn(commonUserService, 'findByEmail')
+        .mockResolvedValue(mockUser as Users);
+
+      jwtService.sign
+        .mockReturnValueOnce('new-access-token' as never)
+        .mockReturnValueOnce('new-refresh-token' as never);
+
+      const result = await authService.refreshToken('valid-refresh-token');
+
+      expect(result).toEqual({
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
+      });
+    });
+
+    it('should throw BadRequestException if token is invalid or expired', async () => {
+      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+        throw new Error('invalid token');
+      });
+
+      await expect(authService.refreshToken('invalid-token')).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it('should throw BadRequestException if user not found', async () => {
+      const payload = {
+        id: 123,
+        email: 'nonexistent@example.com',
+        role: 'PATIENT',
+      };
+
+      jest.spyOn(jwtService, 'verify').mockResolvedValue(payload as never);
+
+      jest.spyOn(commonUserService, 'findByEmail').mockResolvedValue(null);
+
+      await expect(
+        authService.refreshToken('valid-token-but-no-user')
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

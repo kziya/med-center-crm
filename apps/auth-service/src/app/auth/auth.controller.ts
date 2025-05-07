@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 
+import { Public } from '@med-center-crm/auth';
 import { CreatePatientDto } from '@med-center-crm/types';
 import { AuthService } from './auth.service';
 import { AuthResult } from './auth.types';
@@ -19,5 +20,13 @@ export class AuthController {
   @Post('register')
   async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
     return this.authService.register(createPatientDto);
+  }
+
+  @Public()
+  @Post('refresh-token')
+  async refreshToken(
+    @Body('refreshToken') refreshToken: string
+  ): Promise<AuthResult> {
+    return this.authService.refreshToken(refreshToken);
   }
 }
