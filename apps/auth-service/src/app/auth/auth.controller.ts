@@ -9,6 +9,7 @@ import { AuthResult } from './auth.types';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   async login(
     @Body('email') email: string,
@@ -17,6 +18,7 @@ export class AuthController {
     return this.authService.login(email, password);
   }
 
+  @Public()
   @Post('register')
   async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
     return this.authService.register(createPatientDto);
