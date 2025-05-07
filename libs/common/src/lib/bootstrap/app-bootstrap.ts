@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+import { setupValidation } from './setup-validation';
+import { setupSwagger } from './setup-swagger';
 
 interface BootstrapOptions {
   port?: number;
@@ -11,6 +13,7 @@ interface BootstrapOptions {
     appDescription: string;
     appVersion: string;
   };
+  validation?: boolean;
 }
 
 export async function bootstrapApp<T>(
@@ -23,22 +26,19 @@ export async function bootstrapApp<T>(
     swagger,
     port = parseInt(process?.env?.PORT || '3000', 10),
     globalPrefix = 'api',
+    validation,
   } = options;
 
   if (globalPrefix) {
     app.setGlobalPrefix(globalPrefix);
   }
 
-  if (swagger) {
-    const config = new DocumentBuilder()
-      .setTitle(swagger.appName)
-      .setDescription(swagger.appDescription)
-      .setVersion(swagger.appVersion)
-      .addBearerAuth()
-      .build();
+  if (validation) {
+    setupValidation(app);
+  }
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(swagger.swaggerPath, app, document);
+  if (swagger) {
+    setupSwagger(app, swagger);
   }
 
   await app.listen(port);

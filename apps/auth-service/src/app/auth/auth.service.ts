@@ -7,8 +7,9 @@ import { UserTokenPayload } from '@med-center-crm/auth';
 import { CommonPatientService } from '@med-center-crm/patient';
 import { CreatePatientDto, Users } from '@med-center-crm/types';
 import { CommonUserService } from '@med-center-crm/user';
-import { AuthResult } from './auth.types';
 import { EmailOrPasswordWrongException } from './exceptions/email-or-password-wrong.exception';
+import { LoginDto } from './dto/login.dto';
+import { AuthResultDto } from './dto/auth-result.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,19 +20,19 @@ export class AuthService {
     private readonly commonUserService: CommonUserService
   ) {}
 
-  async login(email: string, password: string): Promise<AuthResult> {
-    const user = await this.commonUserService.findByEmail(email);
+  async login(loginDto: LoginDto): Promise<AuthResultDto> {
+    const user = await this.commonUserService.findByEmail(loginDto.email);
 
     if (!user) {
       throw new EmailOrPasswordWrongException();
     }
 
-    await this.verifyPassword(password, user.password_hash);
+    await this.verifyPassword(loginDto.password, user.password_hash);
 
     return this.createAuthResult(user);
   }
 
-  async register(createPatientDto: CreatePatientDto): Promise<AuthResult> {
+  async register(createPatientDto: CreatePatientDto): Promise<AuthResultDto> {
     const user = await this.commonPatientService.createPatient(
       createPatientDto
     );
@@ -39,7 +40,7 @@ export class AuthService {
     return this.createAuthResult(user);
   }
 
-  async refreshToken(refreshToken: string): Promise<AuthResult> {
+  async refreshToken(refreshToken: string): Promise<AuthResultDto> {
     try {
       const userTokenPayload: UserTokenPayload = await this.jwtService.verify(
         refreshToken,
@@ -73,7 +74,7 @@ export class AuthService {
     }
   }
 
-  private createAuthResult(user: Users): AuthResult {
+  private createAuthResult(user: Users): AuthResultDto {
     const payload: UserTokenPayload = {
       id: user.user_id,
       email: user.email,

@@ -14,7 +14,7 @@ services:
       - JWT_ACCESS_TOKEN_TTL=15m
       - JWT_REFRESH_TOKEN_SECRET=some-secret
       - JWT_REFRESH_TOKEN_TTL=1d
-      - POSTGRES_URL=postgresql://root:root@postgres:5432/main
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
 
   postgres:

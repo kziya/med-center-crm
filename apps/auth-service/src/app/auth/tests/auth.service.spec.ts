@@ -46,9 +46,12 @@ describe('AuthService', () => {
     it('should throw if user not found', async () => {
       jest.spyOn(commonUserService, 'findByEmail').mockResolvedValue(null);
 
-      await expect(authService.login('email', 'pass')).rejects.toThrow(
-        EmailOrPasswordWrongException
-      );
+      await expect(
+        authService.login({
+          email: 'email',
+          password: 'pass',
+        })
+      ).rejects.toThrow(EmailOrPasswordWrongException);
     });
 
     it('should throw if password is incorrect', async () => {
@@ -58,9 +61,12 @@ describe('AuthService', () => {
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(authService.login('email', 'wrongpass')).rejects.toThrow(
-        EmailOrPasswordWrongException
-      );
+      await expect(
+        authService.login({
+          email: 'email',
+          password: 'wrongpass',
+        })
+      ).rejects.toThrow(EmailOrPasswordWrongException);
     });
 
     it('should return access and refresh tokens if login is successful', async () => {
@@ -73,7 +79,10 @@ describe('AuthService', () => {
         .mockReturnValueOnce('signed-token' as never)
         .mockReturnValueOnce('signed-token' as never);
 
-      const result = await authService.login('email', 'correctpass');
+      const result = await authService.login({
+        email: 'email',
+        password: 'correctpass',
+      });
 
       expect(result).toEqual({
         accessToken: 'signed-token',
