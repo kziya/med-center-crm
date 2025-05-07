@@ -10,13 +10,14 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - POSTGRES_URL=postgresql://root:root@db:5432/main
       - JWT_ACCESS_TOKEN_SECRET=some-secret
       - JWT_ACCESS_TOKEN_TTL=15m
       - JWT_REFRESH_TOKEN_SECRET=some-secret
       - JWT_REFRESH_TOKEN_TTL=1d
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/main
+      - REDIS_URL=redis://redis:6379
 
-  db:
+  postgres:
     image: postgres:17
     container_name: postgres_db
     restart: unless-stopped
@@ -29,6 +30,15 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7
+    container_name: redis_db
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
 
 volumes:
   pgdata:
+  redisdata:
