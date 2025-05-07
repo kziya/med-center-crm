@@ -18,7 +18,7 @@ export class CommonRoleGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (!roles.length) {
+    if (!roles?.length) {
       return true;
     }
 
