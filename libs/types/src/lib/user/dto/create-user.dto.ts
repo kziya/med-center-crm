@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsDefined,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -16,17 +17,15 @@ export class CreateUserContactDto {
     description: 'User phone number',
     example: '+380991112233',
   })
-  @IsOptional()
   @IsString({ message: 'Phone must be a string' })
-  phone?: string;
+  phone: string;
 
   @ApiPropertyOptional({
     description: 'User address',
     example: '123 Main St, Kyiv',
   })
-  @IsOptional()
   @IsString({ message: 'Address must be a string' })
-  address?: string;
+  address: string;
 
   @ApiPropertyOptional({
     description: 'Additional details',
@@ -62,6 +61,7 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty({ type: () => CreateUserContactDto })
+  @IsDefined({ message: 'Contact must be provided' })
   @ValidateNested()
   @Type(() => CreateUserContactDto)
   contact: CreateUserContactDto;

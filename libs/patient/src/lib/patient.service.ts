@@ -22,7 +22,7 @@ export class CommonPatientService {
         createPatientDto
       );
 
-      await this.entityManager.save(PatientDetails, {
+      await transactionManager.save(PatientDetails, {
         user_id: user.user_id,
         dob: createPatientDto.details.dob,
         insurance_provider: createPatientDto.details.insurance_provider,

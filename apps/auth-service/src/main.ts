@@ -8,4 +8,5 @@ bootstrapApp(AppModule, {
     appDescription: 'Auth service of the med-center-crm',
     swaggerPath: 'swagger',
   },
+  validation: true,
 });
