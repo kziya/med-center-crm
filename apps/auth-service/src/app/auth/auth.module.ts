@@ -10,7 +10,6 @@ import { CommonUserModule } from '@med-center-crm/user';
 
 @Module({
   imports: [
-    CommonAuthModule,
     CommonUserModule,
     CommonPatientModule,
     JwtModule.registerAsync({

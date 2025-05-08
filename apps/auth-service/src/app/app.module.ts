@@ -3,12 +3,14 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { TypeormConfig } from '@med-center-crm/common';
+import { CommonAuthModule } from '@med-center-crm/auth';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync(TypeormConfig),
+    CommonAuthModule,
     AuthModule,
   ],
   controllers: [],

@@ -2,20 +2,32 @@ version: '3.8'
 
 services:
 
-  auth-service:
-    build:
-      context: .
-      dockerfile: apps/auth-service/Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - JWT_ACCESS_TOKEN_SECRET=some-secret
-      - JWT_ACCESS_TOKEN_TTL=15m
-      - JWT_REFRESH_TOKEN_SECRET=some-secret
-      - JWT_REFRESH_TOKEN_TTL=1d
-      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
-      - REDIS_URL=redis://redis:6379
+#  auth-service:
+#    build:
+#      context: .
+#      dockerfile: apps/auth-service/Dockerfile
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - PORT=3000
+#      - JWT_ACCESS_TOKEN_SECRET=some-secret
+#      - JWT_ACCESS_TOKEN_TTL=15m
+#      - JWT_REFRESH_TOKEN_SECRET=some-secret
+#      - JWT_REFRESH_TOKEN_TTL=1d
+#      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+#      - REDIS_URL=redis://redis:6379
+#
+#  user-service:
+#    build:
+#      context: .
+#      dockerfile: apps/user-service/Dockerfile
+#    ports:
+#      - "3001:3001"
+#    environment:
+#      - PORT=3001
+#      - JWT_ACCESS_TOKEN_SECRET=some-secret
+#      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+#      - REDIS_URL=redis://redis:6379
 
   postgres:
     image: postgres:17

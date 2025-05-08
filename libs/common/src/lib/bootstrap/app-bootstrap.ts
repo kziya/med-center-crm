@@ -24,7 +24,7 @@ export async function bootstrapApp<T>(
 
   const {
     swagger,
-    port = parseInt(process?.env?.PORT || '3000', 10),
+    port = parseInt(process?.env?.['PORT'] || '3000', 10),
     globalPrefix = 'api',
     validation,
   } = options;
