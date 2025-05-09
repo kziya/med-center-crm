@@ -26,14 +26,15 @@ export class CommonUserService {
 
   async createUser(
     entityManager: EntityManager,
-    createUserDto: CreateUserDto
+    createUserDto: CreateUserDto,
+    status = UserStatus.ACTIVE
   ): Promise<Users> {
     const user = await entityManager.save(Users, {
       email: createUserDto.email,
       password_hash: await this.hashPassword(createUserDto.password),
       full_name: createUserDto.full_name,
       role: createUserDto.role,
-      status: UserStatus.PENDING,
+      status,
     });
 
     await entityManager.save(UserContacts, {

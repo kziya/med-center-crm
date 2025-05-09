@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeormConfig } from '@med-center-crm/common';
 import { CommonAuthModule } from '@med-center-crm/auth';
 import { AdminModule } from './admin/admin.module';
+import { DoctorModule } from './doctor/doctor.module';
+import { PatientModule } from './patient/patient.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { AdminModule } from './admin/admin.module';
     TypeOrmModule.forRootAsync(TypeormConfig),
     CommonAuthModule,
     AdminModule,
+    DoctorModule,
+    PatientModule,
   ],
   controllers: [],
   providers: [],

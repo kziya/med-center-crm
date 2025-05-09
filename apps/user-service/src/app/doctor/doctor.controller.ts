@@ -6,6 +6,8 @@ import {
   UserTokenPayload,
 } from '@med-center-crm/auth';
 import {
+  CreateDoctorDto,
+  CreatePatientDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -21,8 +23,10 @@ export class DoctorController {
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()
-  async createDoctor(): Promise<Users> {
-    return null;
+  @ApiOperation({ summary: 'Create a new doctor user' })
+  @ApiBody({ type: CreatePatientDto })
+  async createDoctor(@Body() createDoctorDto: CreateDoctorDto): Promise<Users> {
+    return this.doctorService.createDoctor(createDoctorDto);
   }
 
   @Patch(':id/general')

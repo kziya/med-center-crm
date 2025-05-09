@@ -1,0 +1,63 @@
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
+
+import {
+  CreatePatientDto,
+  UpdateUserContactDto,
+  UpdateUserGeneralDto,
+  UserRole,
+  Users,
+} from '@med-center-crm/types';
+import {
+  GetUserTokenPayload,
+  Roles,
+  UserTokenPayload,
+} from '@med-center-crm/auth';
+import { PatientService } from './patient.service';
+
+@Controller('patient')
+export class PatientController {
+  constructor(private readonly patientService: PatientService) {}
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Post()
+  @ApiOperation({ summary: 'Create a new patient user' })
+  @ApiBody({ type: CreatePatientDto })
+  async createPatient(
+    @Body() createPatientDto: CreatePatientDto
+  ): Promise<Users> {
+    return this.patientService.createPatient(createPatientDto);
+  }
+
+  @Patch(':id/general')
+  @ApiOperation({ summary: 'Update general information of an patient' })
+  @ApiParam({ name: 'id', type: Number, description: 'Patient user ID' })
+  @ApiBody({ type: UpdateUserGeneralDto })
+  async updatePatientGeneral(
+    @GetUserTokenPayload() tokenPayload: UserTokenPayload,
+    @Param('id') id: string,
+    @Body() updateUserGeneralDto: UpdateUserGeneralDto
+  ): Promise<void> {
+    return this.patientService.updatePatientGeneral(
+      tokenPayload,
+      +id,
+      updateUserGeneralDto
+    );
+  }
+
+  @Patch(':id/contact')
+  @ApiOperation({ summary: 'Update contact information of an patient' })
+  @ApiParam({ name: 'id', type: Number, description: 'Patient user ID' })
+  @ApiBody({ type: UpdateUserContactDto })
+  async updatePatientContact(
+    @GetUserTokenPayload() tokenPayload: UserTokenPayload,
+    @Param('id') id: string,
+    @Body() updateUserContactDto: UpdateUserContactDto
+  ): Promise<void> {
+    return this.patientService.updatePatientContact(
+      tokenPayload,
+      +id,
+      updateUserContactDto
+    );
+  }
+}

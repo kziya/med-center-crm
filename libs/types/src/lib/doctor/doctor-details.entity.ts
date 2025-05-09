@@ -18,8 +18,8 @@ export class DoctorDetails {
   @Column()
   user_id!: number;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  specialty?: string;
+  @Column({ type: 'varchar', length: 100 })
+  specialty: string;
 
   @Column({
     type: 'varchar',
@@ -29,13 +29,13 @@ export class DoctorDetails {
   license_number?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  education?: string;
+  education: string;
 
   @Column({ type: 'text', nullable: true })
-  career_summary?: string;
+  career_summary: string;
 
   @Column({ type: 'jsonb', nullable: true })
-  availability?: Record<string, any>;
+  availability: Record<string, any>;
 
   @CreateDateColumn()
   created_at!: Date;

@@ -1,44 +1,31 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CommonUserService } from '@med-center-crm/user';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import {
-  CreateDoctorDto,
-  DoctorDetails,
+  CreatePatientDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
   Users,
 } from '@med-center-crm/types';
-import { Repository } from 'typeorm';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { CommonUserService } from '@med-center-crm/user';
+import { CommonPatientService } from '@med-center-crm/patient';
 
 @Injectable()
-export class DoctorService {
+export class PatientService {
   constructor(
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
     private readonly commonUserService: CommonUserService,
-    @InjectRepository(Users)
-    private readonly userRepository: Repository<Users>
+    private readonly commonPatientService: CommonPatientService
   ) {}
 
-  async createDoctor(createUserDto: CreateDoctorDto): Promise<Users> {
-    return this.userRepository.manager.transaction(
-      async (transactionManager) => {
-        const user = await this.commonUserService.createUser(
-          transactionManager,
-          createUserDto
-        );
-
-        await transactionManager.save(DoctorDetails, {
-          user_id: user.user_id,
-          ...createUserDto.details,
-        });
-
-        return user;
-      }
-    );
+  createPatient(createPatientService: CreatePatientDto): Promise<Users> {
+    return this.commonPatientService.createPatient(createPatientService);
   }
 
-  async updateDoctorGeneral(
+  async updatePatientGeneral(
     userTokenPayload: UserTokenPayload,
     id: number,
     updateUserGeneral: UpdateUserGeneralDto
@@ -54,7 +41,7 @@ export class DoctorService {
     );
   }
 
-  async updateDoctorContact(
+  async updatePatientContact(
     userTokenPayload: UserTokenPayload,
     id: number,
     updateUserContact: UpdateUserContactDto
@@ -72,7 +59,7 @@ export class DoctorService {
 
   private validateAccess(userTokenPayload: UserTokenPayload, id: number): void {
     if (
-      userTokenPayload.role === UserRole.DOCTOR &&
+      userTokenPayload.role === UserRole.PATIENT &&
       userTokenPayload.id !== id
     ) {
       throw new ForbiddenException();
