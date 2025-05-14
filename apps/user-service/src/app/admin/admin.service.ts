@@ -7,6 +7,7 @@ import {
   GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
+  UserFullDto,
   UserRole,
   Users,
 } from '@med-center-crm/types';
@@ -22,6 +23,13 @@ export class AdminService {
 
   async getAdminList(getUserListDto: GetUserListDto): Promise<Users[]> {
     return this.commonUserService.getUserList(UserRole.ADMIN, getUserListDto);
+  }
+
+  async getAdminById(id: string): Promise<UserFullDto> {
+    return this.userRepository.findOne({
+      where: { user_id: Number(id), role: UserRole.ADMIN },
+      relations: ['contact'],
+    });
   }
 
   async createAdmin(createUserDto: CreateUserDto): Promise<Users> {

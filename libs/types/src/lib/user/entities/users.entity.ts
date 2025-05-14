@@ -4,9 +4,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { UserRole, UserStatus } from '../enums';
 import { UserGender } from '../enums/user-gender.enum';
+import { UserContacts } from './user-contacts.entity';
 
 @Entity('users')
 export class Users {
@@ -36,4 +39,11 @@ export class Users {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToOne(() => UserContacts, (contact) => contact.user, {
+    cascade: true,
+    eager: true,
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
+  contact: UserContacts;
 }

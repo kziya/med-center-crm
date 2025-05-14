@@ -25,6 +25,7 @@ import {
   GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
+  UserFullDto,
   UserRole,
   Users,
 } from '@med-center-crm/types';
@@ -48,6 +49,25 @@ export class AdminController {
     @Query() getUserListDto: GetUserListDto
   ): Promise<Users[]> {
     return this.adminService.getAdminList(getUserListDto);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get admin user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Admin user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin user found successfully',
+    type: UserFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Admin user not found' })
+  getAdmin(@Param('id') id: string): Promise<UserFullDto> {
+    return this.adminService.getAdminById(id);
   }
 
   @Roles(UserRole.SUPER_ADMIN)
