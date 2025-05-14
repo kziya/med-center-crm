@@ -12,6 +12,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
   CreatePatientDto,
   GetUserListDto,
+  PatientFullDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -27,6 +28,27 @@ import { PatientService } from './patient.service';
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get Patient user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Patient user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Patient user found successfully',
+    type: PatientFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Patient user not found' })
+  getAdmin(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<PatientFullDto> {
+    return this.patientService.getPatientById(payload, +id);
+  }
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT)
   @Get('list')

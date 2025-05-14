@@ -66,8 +66,11 @@ export class AdminController {
     type: UserFullDto,
   })
   @ApiResponse({ status: 404, description: 'Admin user not found' })
-  getAdmin(@Param('id') id: string): Promise<UserFullDto> {
-    return this.adminService.getAdminById(id);
+  getAdmin(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<UserFullDto> {
+    return this.adminService.getAdminById(payload, +id);
   }
 
   @Roles(UserRole.SUPER_ADMIN)

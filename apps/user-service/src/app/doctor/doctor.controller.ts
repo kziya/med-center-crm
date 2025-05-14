@@ -16,9 +16,11 @@ import {
 import {
   CreateDoctorDto,
   CreatePatientDto,
+  DoctorFullDto,
   GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
+  UserFullDto,
   UserRole,
   Users,
 } from '@med-center-crm/types';
@@ -29,6 +31,28 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 @Controller('doctor')
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get Doctor user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Doctor user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Doctor user found successfully',
+    type: UserFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Doctor user not found' })
+  getAdmin(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<DoctorFullDto> {
+    return this.doctorService.getDoctorById(payload, +id);
+  }
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Get('list')

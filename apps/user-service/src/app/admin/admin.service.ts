@@ -25,9 +25,16 @@ export class AdminService {
     return this.commonUserService.getUserList(UserRole.ADMIN, getUserListDto);
   }
 
-  async getAdminById(id: string): Promise<UserFullDto> {
+  async getAdminById(
+    tokenPayload: UserTokenPayload,
+    id: number
+  ): Promise<UserFullDto> {
+    if (tokenPayload.role === UserRole.ADMIN && tokenPayload.id !== id) {
+      throw new ForbiddenException();
+    }
+
     return this.userRepository.findOne({
-      where: { user_id: Number(id), role: UserRole.ADMIN },
+      where: { user_id: id, role: UserRole.ADMIN },
       relations: ['contact'],
     });
   }

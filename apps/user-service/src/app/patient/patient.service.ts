@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,6 +10,7 @@ import {
   CreatePatientDto,
   DoctorPatientAssignment,
   GetUserListDto,
+  PatientFullDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -22,6 +27,56 @@ export class PatientService {
     private readonly commonUserService: CommonUserService,
     private readonly commonPatientService: CommonPatientService
   ) {}
+
+  async getPatientById(
+    payload: UserTokenPayload,
+    id: number
+  ): Promise<PatientFullDto> {
+    if (payload.role === UserRole.PATIENT && payload.id !== id) {
+      throw new ForbiddenException('You can only access your own profile');
+    }
+
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.contact', 'contact')
+      .leftJoin('patient_details', 'pd', 'pd.user_id = u.user_id')
+      .addSelect([
+        'pd.dob',
+        'pd.insurance_provider',
+        'pd.allergies',
+        'pd.created_at',
+        'pd.updated_at',
+      ])
+      .where('u.user_id = :id', { id })
+      .andWhere('u.role = :role', { role: UserRole.PATIENT });
+
+    if (payload.role === UserRole.DOCTOR) {
+      query.innerJoin(
+        'doctor_patient_assignments',
+        'assign',
+        'assign.patient_id = u.user_id AND assign.doctor_id = :doctorId',
+        { doctorId: payload.id }
+      );
+    }
+
+    const patient = await query.getOne();
+
+    if (!patient) {
+      throw new NotFoundException('Patient not found or access denied');
+    }
+
+    // Map to PatientFullDto
+    return {
+      ...patient,
+      patientDetails: {
+        dob: (patient as any).pd_dob,
+        insurance_provider: (patient as any).pd_insurance_provider,
+        allergies: (patient as any).pd_allergies,
+        created_at: (patient as any).pd_created_at,
+        updated_at: (patient as any).pd_updated_at,
+      },
+    };
+  }
 
   async getPatientList(getUserListDto: GetUserListDto): Promise<Users[]> {
     return this.commonUserService.getUserList(UserRole.PATIENT, getUserListDto);

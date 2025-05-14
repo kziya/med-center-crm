@@ -1,9 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CommonUserService } from '@med-center-crm/user';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateDoctorDto,
   DoctorDetails,
+  DoctorFullDto,
   GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
@@ -23,6 +28,45 @@ export class DoctorService {
 
   async getDoctorList(getUserListDto: GetUserListDto): Promise<Users[]> {
     return this.commonUserService.getUserList(UserRole.DOCTOR, getUserListDto);
+  }
+
+  async getDoctorById(
+    payload: UserTokenPayload,
+    id: number
+  ): Promise<DoctorFullDto> {
+    if (payload.role === UserRole.DOCTOR && payload.id !== id) {
+      throw new ForbiddenException();
+    }
+
+    const doctor = await this.userRepository
+      .createQueryBuilder('u')
+      .leftJoinAndSelect('u.contact', 'contact')
+      .leftJoin('doctor_details', 'details', 'details.user_id = u.user_id')
+      .addSelect([
+        'details.specialty',
+        'details.license_number',
+        'details.education',
+        'details.career_summary',
+        'details.availability',
+      ])
+      .where('u.user_id = :id', { id })
+      .andWhere('u.role = :role', { role: UserRole.DOCTOR })
+      .getOne();
+
+    if (!doctor) {
+      throw new NotFoundException('Doctor not found');
+    }
+
+    return {
+      ...doctor,
+      details: {
+        specialty: (doctor as any).details_specialty,
+        license_number: (doctor as any).details_license_number,
+        education: (doctor as any).details_education,
+        career_summary: (doctor as any).details_career_summary,
+        availability: (doctor as any).details_availability,
+      },
+    };
   }
 
   async createDoctor(createUserDto: CreateDoctorDto): Promise<Users> {
