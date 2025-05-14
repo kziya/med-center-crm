@@ -31,7 +31,7 @@ import {
 } from '@med-center-crm/types';
 import { AdminService } from './admin.service';
 
-@ApiTags('Admin Management')
+@ApiTags('Admin')
 @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
 @Controller('admin')
 export class AdminController {
