@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, MoreThan, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import {
   CreateUserDto,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserContacts,
+  UserRole,
   Users,
   UserStatus,
 } from '@med-center-crm/types';
@@ -22,6 +24,39 @@ export class CommonUserService {
 
   async findByEmail(email: string): Promise<Users | null> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async getUserList(
+    role: UserRole,
+    getUserListDto: GetUserListDto
+  ): Promise<Users[]> {
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .select('u.*')
+      .where('role = :role', {
+        role,
+      });
+
+    if (getUserListDto.gender) {
+      query.andWhere('u.gender = :gender', {
+        gender: getUserListDto.gender,
+      });
+    }
+
+    if (getUserListDto.lastUserId) {
+      query.andWhere('u.user_id > :lastUserId', {
+        lastUserId: getUserListDto.lastUserId,
+      });
+    }
+
+    if (getUserListDto.searchString) {
+      query.andWhere('u.full_name LIKE :searchString', {
+        searchString: `%${getUserListDto.searchString}%`,
+      });
+    }
+
+    const limit = Math.min(getUserListDto.limit || 0, 100);
+    return query.orderBy('u.user_id', 'ASC').limit(limit).getRawMany();
   }
 
   async createUser(

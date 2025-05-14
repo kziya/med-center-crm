@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import {
   CreateUserDto,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -18,6 +19,10 @@ export class AdminService {
     private readonly commonUserService: CommonUserService,
     @InjectRepository(Users) private readonly userRepository: Repository<Users>
   ) {}
+
+  async getAdminList(getUserListDto: GetUserListDto): Promise<Users[]> {
+    return this.commonUserService.getUserList(UserRole.ADMIN, getUserListDto);
+  }
 
   async createAdmin(createUserDto: CreateUserDto): Promise<Users> {
     return this.userRepository.manager.transaction((transactionManager) =>

@@ -1,5 +1,19 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import {
   GetUserTokenPayload,
@@ -8,6 +22,7 @@ import {
 } from '@med-center-crm/auth';
 import {
   CreateUserDto,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -20,6 +35,20 @@ import { AdminService } from './admin.service';
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Get('list')
+  @ApiOperation({ summary: 'Get list of users with optional filters' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users returned successfully',
+    type: [Users],
+  })
+  async getAdminList(
+    @Query() getUserListDto: GetUserListDto
+  ): Promise<Users[]> {
+    return this.adminService.getAdminList(getUserListDto);
+  }
 
   @Roles(UserRole.SUPER_ADMIN)
   @Post()

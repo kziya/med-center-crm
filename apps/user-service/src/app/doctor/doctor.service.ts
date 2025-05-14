@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateDoctorDto,
   DoctorDetails,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -19,6 +20,10 @@ export class DoctorService {
     @InjectRepository(Users)
     private readonly userRepository: Repository<Users>
   ) {}
+
+  async getDoctorList(getUserListDto: GetUserListDto): Promise<Users[]> {
+    return this.commonUserService.getUserList(UserRole.DOCTOR, getUserListDto);
+  }
 
   async createDoctor(createUserDto: CreateDoctorDto): Promise<Users> {
     return this.userRepository.manager.transaction(

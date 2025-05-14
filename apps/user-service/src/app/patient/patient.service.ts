@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 
 import {
   CreatePatientDto,
+  DoctorPatientAssignment,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -20,6 +22,42 @@ export class PatientService {
     private readonly commonUserService: CommonUserService,
     private readonly commonPatientService: CommonPatientService
   ) {}
+
+  async getPatientList(getUserListDto: GetUserListDto): Promise<Users[]> {
+    return this.commonUserService.getUserList(UserRole.PATIENT, getUserListDto);
+  }
+
+  async getPatientListForDoctor(
+    tokenPayload: UserTokenPayload,
+    getUserListDto: GetUserListDto
+  ): Promise<Users[]> {
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin(DoctorPatientAssignment, 'a', 'a.patient_id = u.user_id')
+      .where('a.doctor_id = :doctorId', { doctorId: tokenPayload.id })
+      .andWhere('u.role = :role', { role: UserRole.PATIENT });
+
+    if (getUserListDto.gender) {
+      query.andWhere('u.gender = :gender', {
+        gender: getUserListDto.gender,
+      });
+    }
+
+    if (getUserListDto.lastUserId) {
+      query.andWhere('u.user_id > :lastUserId', {
+        lastUserId: getUserListDto.lastUserId,
+      });
+    }
+
+    if (getUserListDto.searchString) {
+      query.andWhere('(u.full_name ILIKE :search)', {
+        search: `%${getUserListDto.searchString}%`,
+      });
+    }
+
+    const limit = Math.min(getUserListDto.limit || 20, 100);
+    return query.orderBy('u.user_id', 'ASC').limit(limit).getMany();
+  }
 
   createPatient(createPatientService: CreatePatientDto): Promise<Users> {
     return this.commonPatientService.createPatient(createPatientService);

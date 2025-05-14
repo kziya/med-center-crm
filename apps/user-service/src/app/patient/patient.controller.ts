@@ -1,8 +1,17 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import {
   CreatePatientDto,
+  GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -18,6 +27,28 @@ import { PatientService } from './patient.service';
 @Controller('patient')
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT)
+  @Get('list')
+  @ApiOperation({ summary: 'Get list of users with optional filters' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users returned successfully',
+    type: [Users],
+  })
+  async getAdminList(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Query() getUserListDto: GetUserListDto
+  ): Promise<Users[]> {
+    if (payload.role === UserRole.DOCTOR) {
+      return this.patientService.getPatientListForDoctor(
+        payload,
+        getUserListDto
+      );
+    }
+
+    return this.patientService.getPatientList(getUserListDto);
+  }
 
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Post()
