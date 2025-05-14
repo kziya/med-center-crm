@@ -29,9 +29,7 @@ export class AdminService {
     tokenPayload: UserTokenPayload,
     id: number
   ): Promise<UserFullDto> {
-    if (tokenPayload.role === UserRole.ADMIN && tokenPayload.id !== id) {
-      throw new ForbiddenException();
-    }
+    this.validateAccess(tokenPayload, id);
 
     return this.userRepository.findOne({
       where: { user_id: id, role: UserRole.ADMIN },

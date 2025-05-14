@@ -34,9 +34,7 @@ export class DoctorService {
     payload: UserTokenPayload,
     id: number
   ): Promise<DoctorFullDto> {
-    if (payload.role === UserRole.DOCTOR && payload.id !== id) {
-      throw new ForbiddenException();
-    }
+    this.validateAccess(payload, id);
 
     const doctor = await this.userRepository
       .createQueryBuilder('u')

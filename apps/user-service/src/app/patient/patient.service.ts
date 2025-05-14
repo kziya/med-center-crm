@@ -32,9 +32,7 @@ export class PatientService {
     payload: UserTokenPayload,
     id: number
   ): Promise<PatientFullDto> {
-    if (payload.role === UserRole.PATIENT && payload.id !== id) {
-      throw new ForbiddenException('You can only access your own profile');
-    }
+    this.validateAccess(payload, id);
 
     const query = this.userRepository
       .createQueryBuilder('u')
