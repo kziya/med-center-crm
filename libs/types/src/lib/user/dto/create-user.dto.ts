@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 
 import { UserRole } from '../enums';
+import { UserGender } from '../enums/user-gender.enum';
 
 export class CreateUserContactDto {
   @ApiPropertyOptional({
@@ -59,6 +60,16 @@ export class CreateUserDto {
   @ApiProperty({ description: 'Account password', example: 'StrongPass123!' })
   @IsNotEmpty({ message: 'Password cannot be empty' })
   password: string;
+
+  @ApiProperty({
+    enum: UserGender,
+    description: 'Gender of the user',
+    example: UserGender.Male,
+  })
+  @IsEnum(UserGender, {
+    message: 'Gender must be a valid value (e.g., MALE, FEMALE)',
+  })
+  gender: UserGender;
 
   @ApiProperty({ type: () => CreateUserContactDto })
   @IsDefined({ message: 'Contact must be provided' })

@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole, UserStatus } from '../enums';
+import { UserGender } from '../enums/user-gender.enum';
 
 @Entity('users')
 export class Users {
@@ -26,6 +27,9 @@ export class Users {
 
   @Column({ type: 'varchar', length: 20 })
   status: UserStatus;
+
+  @Column({ type: 'varchar', length: 20 })
+  gender: UserGender;
 
   @CreateDateColumn()
   created_at: Date;
