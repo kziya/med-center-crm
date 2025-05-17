@@ -18,6 +18,7 @@ import {
   CreatePatientDto,
   DoctorFullDto,
   GetUserListDto,
+  UpdateDoctorDetailsDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserFullDto,
@@ -83,6 +84,22 @@ export class DoctorController {
       tokenPayload,
       +id,
       updateUserContactDto
+    );
+  }
+
+  @Patch(':id/detail')
+  @ApiOperation({ summary: 'Update details of an doctor' })
+  @ApiParam({ name: 'id', type: Number, description: 'Doctor user ID' })
+  @ApiBody({ type: UpdateDoctorDetailsDto })
+  async updateDoctorDetails(
+    @GetUserTokenPayload() tokenPayload: UserTokenPayload,
+    @Param('id') id: string,
+    @Body() updateDoctorDetailsDto: UpdateDoctorDetailsDto
+  ): Promise<void> {
+    return this.doctorService.updateDoctorDetails(
+      tokenPayload,
+      +id,
+      updateDoctorDetailsDto
     );
   }
 

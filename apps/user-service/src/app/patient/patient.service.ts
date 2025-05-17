@@ -12,6 +12,7 @@ import {
   GetUserListDto,
   PatientDetails,
   PatientFullDto,
+  UpdatePatientDetailsDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserContacts,
@@ -21,13 +22,16 @@ import {
 import { UserTokenPayload } from '@med-center-crm/auth';
 import { CommonUserService } from '@med-center-crm/user';
 import { CommonPatientService } from '@med-center-crm/patient';
+import { UserNotFoundException } from '@med-center-crm/user';
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Users) private readonly userRepository: Repository<Users>,
     private readonly commonUserService: CommonUserService,
-    private readonly commonPatientService: CommonPatientService
+    private readonly commonPatientService: CommonPatientService,
+    @InjectRepository(PatientDetails)
+    private readonly patientDetailsRepository: Repository<PatientDetails>
   ) {}
 
   async getPatientById(
@@ -166,6 +170,24 @@ export class PatientService {
         updateUserContact
       )
     );
+  }
+
+  async updatePatientDetails(
+    userTokenPayload: UserTokenPayload,
+    id: number,
+    updatePatientDetailsDto: UpdatePatientDetailsDto
+  ): Promise<void> {
+    this.validateAccess(userTokenPayload, id);
+    const result = await this.patientDetailsRepository.update(
+      { user_id: id },
+      updatePatientDetailsDto
+    );
+
+    if (result.affected === 0) {
+      throw new UserNotFoundException();
+    }
+
+    return;
   }
 
   private validateAccess(userTokenPayload: UserTokenPayload, id: number): void {

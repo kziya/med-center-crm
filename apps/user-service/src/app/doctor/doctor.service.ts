@@ -3,13 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CommonUserService } from '@med-center-crm/user';
+import { CommonUserService, UserNotFoundException } from '@med-center-crm/user';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   CreateDoctorDto,
   DoctorDetails,
   DoctorFullDto,
   GetUserListDto,
+  UpdateDoctorDetailsDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserContacts,
@@ -24,7 +25,9 @@ export class DoctorService {
   constructor(
     private readonly commonUserService: CommonUserService,
     @InjectRepository(Users)
-    private readonly userRepository: Repository<Users>
+    private readonly userRepository: Repository<Users>,
+    @InjectRepository(DoctorDetails)
+    private readonly doctorDetailsRepository: Repository<DoctorDetails>
   ) {}
 
   async getDoctorList(getUserListDto: GetUserListDto): Promise<Users[]> {
@@ -136,6 +139,24 @@ export class DoctorService {
         updateUserContact
       )
     );
+  }
+
+  async updateDoctorDetails(
+    userTokenPayload: UserTokenPayload,
+    id: number,
+    updateDoctorDetailsDto: UpdateDoctorDetailsDto
+  ): Promise<void> {
+    this.validateAccess(userTokenPayload, id);
+    const result = await this.doctorDetailsRepository.update(
+      { user_id: id },
+      updateDoctorDetailsDto
+    );
+
+    if (result.affected === 0) {
+      throw new UserNotFoundException();
+    }
+
+    return;
   }
 
   private validateAccess(userTokenPayload: UserTokenPayload, id: number): void {

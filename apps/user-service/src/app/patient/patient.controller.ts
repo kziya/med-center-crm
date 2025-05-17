@@ -13,6 +13,7 @@ import {
   CreatePatientDto,
   GetUserListDto,
   PatientFullDto,
+  UpdatePatientDetailsDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
   UserRole,
@@ -90,6 +91,22 @@ export class PatientController {
       tokenPayload,
       +id,
       updateUserContactDto
+    );
+  }
+
+  @Patch(':id/details')
+  @ApiOperation({ summary: 'Update details  of an patient' })
+  @ApiParam({ name: 'id', type: Number, description: 'Patient user ID' })
+  @ApiBody({ type: UpdatePatientDetailsDto })
+  async updatePatientDetails(
+    @GetUserTokenPayload() tokenPayload: UserTokenPayload,
+    @Param('id') id: string,
+    @Body() updatePatientDetailsDto: UpdatePatientDetailsDto
+  ): Promise<void> {
+    return this.patientService.updatePatientDetails(
+      tokenPayload,
+      +id,
+      updatePatientDetailsDto
     );
   }
 
