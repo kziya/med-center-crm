@@ -29,27 +29,6 @@ import { PatientService } from './patient.service';
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get Patient user by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'Patient user ID',
-    example: 1,
-    type: Number,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Patient user found successfully',
-    type: PatientFullDto,
-  })
-  @ApiResponse({ status: 404, description: 'Patient user not found' })
-  getAdmin(
-    @GetUserTokenPayload() payload: UserTokenPayload,
-    @Param('id') id: string
-  ): Promise<PatientFullDto> {
-    return this.patientService.getPatientById(payload, +id);
-  }
-
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT)
   @Get('list')
   @ApiOperation({ summary: 'Get list of users with optional filters' })
@@ -58,7 +37,7 @@ export class PatientController {
     description: 'List of users returned successfully',
     type: [Users],
   })
-  async getAdminList(
+  async getPatientList(
     @GetUserTokenPayload() payload: UserTokenPayload,
     @Query() getUserListDto: GetUserListDto
   ): Promise<Users[]> {
@@ -78,8 +57,8 @@ export class PatientController {
   @ApiBody({ type: CreatePatientDto })
   async createPatient(
     @Body() createPatientDto: CreatePatientDto
-  ): Promise<Users> {
-    return this.patientService.createPatient(createPatientDto);
+  ): Promise<void> {
+    await this.patientService.createPatient(createPatientDto);
   }
 
   @Patch(':id/general')
@@ -112,5 +91,26 @@ export class PatientController {
       +id,
       updateUserContactDto
     );
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get Patient user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Patient user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Patient user found successfully',
+    type: PatientFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Patient user not found' })
+  async getPatient(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<PatientFullDto> {
+    return this.patientService.getPatientById(payload, +id);
   }
 }

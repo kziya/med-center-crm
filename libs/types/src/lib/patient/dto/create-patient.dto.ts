@@ -1,8 +1,4 @@
-import {
-  ApiHideProperty,
-  ApiProperty,
-  ApiPropertyOptional,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDate,
   IsOptional,
@@ -45,9 +41,6 @@ export class CreatePatientDetailsDto {
 }
 
 export class CreatePatientDto extends CreateUserDto {
-  @ApiHideProperty()
-  override role: UserRole = UserRole.PATIENT;
-
   @ApiProperty({ type: () => CreatePatientDetailsDto })
   @IsDefined({ message: 'Details must be provided' })
   @ValidateNested()

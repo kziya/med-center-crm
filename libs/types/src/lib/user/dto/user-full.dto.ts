@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole, UserStatus } from '../enums';
+import { UserGender } from '../enums/user-gender.enum';
 
 export class UserContactDto {
   @ApiProperty({ example: '380991112233', required: false })
@@ -34,12 +35,9 @@ export class UserFullDto {
   @ApiProperty({ enum: UserStatus })
   status: UserStatus;
 
-  @ApiProperty({ type: String })
-  created_at: Date;
-
-  @ApiProperty({ type: String })
-  updated_at: Date;
+  @ApiProperty({ enum: UserGender })
+  gender: UserGender;
 
   @ApiProperty({ type: () => UserContactDto })
-  contact: UserContactDto;
+  contact: Pick<UserContactDto, 'phone' | 'address' | 'details'>;
 }

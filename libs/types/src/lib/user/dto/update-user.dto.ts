@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { UserStatus } from '../enums';
+import { UserGender } from '../enums/user-gender.enum';
 
 export class UpdateUserGeneralDto {
   @ApiPropertyOptional({
@@ -35,6 +36,11 @@ export class UpdateUserGeneralDto {
   @IsEnum(UserStatus, { message: 'Status must be a valid enum value' })
   @IsOptional()
   status?: UserStatus;
+
+  @ApiPropertyOptional({ description: 'User gender', enum: UserStatus })
+  @IsEnum(UserGender, { message: 'Gender must be a valid enum value' })
+  @IsOptional()
+  gender?: UserGender;
 }
 
 export class UpdateUserContactDto {

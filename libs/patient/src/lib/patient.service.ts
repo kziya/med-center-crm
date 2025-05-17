@@ -6,6 +6,7 @@ import { CommonUserService } from '@med-center-crm/user';
 import {
   CreatePatientDto,
   PatientDetails,
+  UserRole,
   Users,
   UserStatus,
 } from '@med-center-crm/types';
@@ -20,10 +21,10 @@ export class CommonPatientService {
   async createPatient(
     createPatientDto: CreatePatientDto
   ): Promise<Users | null> {
-    let user = null;
-    await this.entityManager.transaction(async (transactionManager) => {
-      user = await this.commonUserService.createUser(
+    return this.entityManager.transaction(async (transactionManager) => {
+      const user = await this.commonUserService.createUser(
         transactionManager,
+        UserRole.PATIENT,
         createPatientDto,
         UserStatus.PENDING
       );
@@ -34,8 +35,8 @@ export class CommonPatientService {
         insurance_provider: createPatientDto.details.insurance_provider,
         allergies: createPatientDto.details.allergies,
       });
-    });
 
-    return user;
+      return user;
+    });
   }
 }

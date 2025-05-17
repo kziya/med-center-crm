@@ -10,9 +10,11 @@ import {
   CreatePatientDto,
   DoctorPatientAssignment,
   GetUserListDto,
+  PatientDetails,
   PatientFullDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
+  UserContacts,
   UserRole,
   Users,
 } from '@med-center-crm/types';
@@ -36,14 +38,23 @@ export class PatientService {
 
     const query = this.userRepository
       .createQueryBuilder('u')
-      .leftJoinAndSelect('u.contact', 'contact')
-      .leftJoin('patient_details', 'pd', 'pd.user_id = u.user_id')
-      .addSelect([
-        'pd.dob',
-        'pd.insurance_provider',
-        'pd.allergies',
-        'pd.created_at',
-        'pd.updated_at',
+      .leftJoin(UserContacts, 'contact', 'contact.user_id = u.user_id')
+      .leftJoin(PatientDetails, 'pd', 'pd.user_id = u.user_id')
+      .select([
+        'u.user_id AS user_id',
+        'u.gender AS gender',
+        'u.email AS email',
+        'u.full_name AS full_name',
+        'u.role AS role',
+        'u.status AS status',
+        'contact.phone AS contact_phone',
+        'contact.address AS contact_address',
+        'contact.details AS contact_details',
+        'pd.dob AS pd_dob',
+        'pd.insurance_provider AS pd_insurance_provider',
+        'pd.allergies AS pd_allergies',
+        'pd.created_at AS pd_created_at',
+        'pd.updated_at AS pd_updated_at',
       ])
       .where('u.user_id = :id', { id })
       .andWhere('u.role = :role', { role: UserRole.PATIENT });
@@ -57,21 +68,30 @@ export class PatientService {
       );
     }
 
-    const patient = await query.getOne();
+    const raw = await query.getRawOne();
 
-    if (!patient) {
+    if (!raw) {
       throw new NotFoundException('Patient not found or access denied');
     }
 
-    // Map to PatientFullDto
     return {
-      ...patient,
+      user_id: raw.user_id,
+      gender: raw.gender,
+      email: raw.email,
+      full_name: raw.full_name,
+      role: raw.role,
+      status: raw.status,
+      contact: {
+        phone: raw.contact_phone,
+        address: raw.contact_address,
+        details: raw.contact_details,
+      },
       patientDetails: {
-        dob: (patient as any).pd_dob,
-        insurance_provider: (patient as any).pd_insurance_provider,
-        allergies: (patient as any).pd_allergies,
-        created_at: (patient as any).pd_created_at,
-        updated_at: (patient as any).pd_updated_at,
+        dob: raw.pd_dob,
+        insurance_provider: raw.pd_insurance_provider,
+        allergies: raw.pd_allergies,
+        created_at: raw.pd_created_at,
+        updated_at: raw.pd_updated_at,
       },
     };
   }

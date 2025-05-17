@@ -34,12 +34,23 @@ export class AdminService {
     return this.userRepository.findOne({
       where: { user_id: id, role: UserRole.ADMIN },
       relations: ['contact'],
+      select: {
+        user_id: true,
+        email: true,
+        status: true,
+        gender: true,
+        role: true,
+      },
     });
   }
 
   async createAdmin(createUserDto: CreateUserDto): Promise<Users> {
     return this.userRepository.manager.transaction((transactionManager) =>
-      this.commonUserService.createUser(transactionManager, createUserDto)
+      this.commonUserService.createUser(
+        transactionManager,
+        UserRole.ADMIN,
+        createUserDto
+      )
     );
   }
 

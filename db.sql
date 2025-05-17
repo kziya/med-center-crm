@@ -42,10 +42,8 @@ CREATE TABLE users (
                      email VARCHAR(150) UNIQUE NOT NULL,
                      password_hash VARCHAR(255) NOT NULL,
                      full_name VARCHAR(100) NOT NULL,
-                     profile_picture_url VARCHAR(255),
                      role VARCHAR(20) CHECK (role IN ('super_admin', 'admin', 'doctor', 'patient')) NOT NULL,
                      status VARCHAR(20) CHECK (status IN ('active', 'blocked', 'archived', 'pending')) NOT NULL,
-
                      created_at TIMESTAMP DEFAULT now(),
                      updated_at TIMESTAMP DEFAULT now()
 );

@@ -1,8 +1,4 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-  ApiHideProperty,
-} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsOptional,
@@ -55,9 +51,6 @@ export class CreateDoctorDetailsDto {
 }
 
 export class CreateDoctorDto extends CreateUserDto {
-  @ApiHideProperty()
-  override role: UserRole = UserRole.DOCTOR;
-
   @ApiProperty({
     description: 'Doctor details',
     type: CreateDoctorDetailsDto,

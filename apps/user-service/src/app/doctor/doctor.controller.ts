@@ -32,28 +32,6 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 export class DoctorController {
   constructor(private readonly doctorService: DoctorService) {}
 
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR)
-  @Get(':id')
-  @ApiOperation({ summary: 'Get Doctor user by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'Doctor user ID',
-    example: 1,
-    type: Number,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Doctor user found successfully',
-    type: UserFullDto,
-  })
-  @ApiResponse({ status: 404, description: 'Doctor user not found' })
-  getAdmin(
-    @GetUserTokenPayload() payload: UserTokenPayload,
-    @Param('id') id: string
-  ): Promise<DoctorFullDto> {
-    return this.doctorService.getDoctorById(payload, +id);
-  }
-
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Get('list')
   @ApiOperation({ summary: 'Get list of users with optional filters' })
@@ -62,7 +40,7 @@ export class DoctorController {
     description: 'List of users returned successfully',
     type: [Users],
   })
-  async getAdminList(
+  async getDoctorList(
     @Query() getUserListDto: GetUserListDto
   ): Promise<Users[]> {
     return this.doctorService.getDoctorList(getUserListDto);
@@ -72,8 +50,8 @@ export class DoctorController {
   @Post()
   @ApiOperation({ summary: 'Create a new doctor user' })
   @ApiBody({ type: CreatePatientDto })
-  async createDoctor(@Body() createDoctorDto: CreateDoctorDto): Promise<Users> {
-    return this.doctorService.createDoctor(createDoctorDto);
+  async createDoctor(@Body() createDoctorDto: CreateDoctorDto): Promise<void> {
+    await this.doctorService.createDoctor(createDoctorDto);
   }
 
   @Patch(':id/general')
@@ -106,5 +84,27 @@ export class DoctorController {
       +id,
       updateUserContactDto
     );
+  }
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get Doctor user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Doctor user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Doctor user found successfully',
+    type: UserFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Doctor user not found' })
+  getDoctor(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<DoctorFullDto> {
+    return this.doctorService.getDoctorById(payload, +id);
   }
 }

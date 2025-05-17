@@ -49,14 +49,6 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Full name is required' })
   full_name: string;
 
-  @ApiProperty({
-    enum: UserRole,
-    description: 'Role of the user',
-    example: UserRole.PATIENT,
-  })
-  @IsEnum(UserRole, { message: 'Role must be a valid user role' })
-  role: UserRole;
-
   @ApiProperty({ description: 'Account password', example: 'StrongPass123!' })
   @IsNotEmpty({ message: 'Password cannot be empty' })
   password: string;

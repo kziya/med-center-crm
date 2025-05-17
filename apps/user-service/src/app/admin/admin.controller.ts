@@ -52,33 +52,11 @@ export class AdminController {
   }
 
   @Roles(UserRole.SUPER_ADMIN)
-  @Get(':id')
-  @ApiOperation({ summary: 'Get admin user by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'Admin user ID',
-    example: 1,
-    type: Number,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Admin user found successfully',
-    type: UserFullDto,
-  })
-  @ApiResponse({ status: 404, description: 'Admin user not found' })
-  getAdmin(
-    @GetUserTokenPayload() payload: UserTokenPayload,
-    @Param('id') id: string
-  ): Promise<UserFullDto> {
-    return this.adminService.getAdminById(payload, +id);
-  }
-
-  @Roles(UserRole.SUPER_ADMIN)
   @Post()
   @ApiOperation({ summary: 'Create a new admin user' })
   @ApiBody({ type: CreateUserDto })
-  async createAdmin(@Body() createUserDto: CreateUserDto): Promise<Users> {
-    return this.adminService.createAdmin(createUserDto);
+  async createAdmin(@Body() createUserDto: CreateUserDto): Promise<void> {
+    await this.adminService.createAdmin(createUserDto);
   }
 
   @Patch(':id/general')
@@ -111,5 +89,27 @@ export class AdminController {
       +id,
       updateUserContactDto
     );
+  }
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get admin user by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'Admin user ID',
+    example: 1,
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Admin user found successfully',
+    type: UserFullDto,
+  })
+  @ApiResponse({ status: 404, description: 'Admin user not found' })
+  getAdmin(
+    @GetUserTokenPayload() payload: UserTokenPayload,
+    @Param('id') id: string
+  ): Promise<UserFullDto> {
+    return this.adminService.getAdminById(payload, +id);
   }
 }

@@ -32,7 +32,7 @@ export class CommonUserService {
   ): Promise<Users[]> {
     const query = this.userRepository
       .createQueryBuilder('u')
-      .select('u.*')
+      .select('u.user_id, u.gender, u.email, u.full_name, u.role, u.status')
       .where('role = :role', {
         role,
       });
@@ -61,6 +61,7 @@ export class CommonUserService {
 
   async createUser(
     entityManager: EntityManager,
+    role: UserRole,
     createUserDto: CreateUserDto,
     status = UserStatus.ACTIVE
   ): Promise<Users> {
@@ -68,7 +69,8 @@ export class CommonUserService {
       email: createUserDto.email,
       password_hash: await this.hashPassword(createUserDto.password),
       full_name: createUserDto.full_name,
-      role: createUserDto.role,
+      role: role,
+      gender: createUserDto.gender,
       status,
     });
 

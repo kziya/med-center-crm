@@ -12,6 +12,7 @@ import {
   GetUserListDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
+  UserContacts,
   UserRole,
   Users,
 } from '@med-center-crm/types';
@@ -36,33 +37,52 @@ export class DoctorService {
   ): Promise<DoctorFullDto> {
     this.validateAccess(payload, id);
 
-    const doctor = await this.userRepository
+    const raw = await this.userRepository
       .createQueryBuilder('u')
-      .leftJoinAndSelect('u.contact', 'contact')
-      .leftJoin('doctor_details', 'details', 'details.user_id = u.user_id')
-      .addSelect([
-        'details.specialty',
-        'details.license_number',
-        'details.education',
-        'details.career_summary',
-        'details.availability',
-      ])
+      .leftJoin(UserContacts, 'contact', 'contact.user_id = u.user_id')
+      .leftJoin(DoctorDetails, 'details', 'details.user_id = u.user_id')
       .where('u.user_id = :id', { id })
       .andWhere('u.role = :role', { role: UserRole.DOCTOR })
-      .getOne();
+      .select([
+        'u.user_id AS user_id',
+        'u.gender AS gender',
+        'u.email AS email',
+        'u.full_name AS full_name',
+        'u.role AS role',
+        'u.status AS status',
+        'contact.phone AS contact_phone',
+        'contact.address AS contact_address',
+        'contact.details AS contact_details',
+        'details.specialty AS details_specialty',
+        'details.license_number AS details_license_number',
+        'details.education AS details_education',
+        'details.career_summary AS details_career_summary',
+        'details.availability AS details_availability',
+      ])
+      .getRawOne();
 
-    if (!doctor) {
+    if (!raw) {
       throw new NotFoundException('Doctor not found');
     }
 
     return {
-      ...doctor,
+      user_id: raw.user_id,
+      gender: raw.gender,
+      email: raw.email,
+      full_name: raw.full_name,
+      role: raw.role,
+      status: raw.status,
+      contact: {
+        phone: raw.contact_phone,
+        address: raw.contact_address,
+        details: raw.contact_details,
+      },
       details: {
-        specialty: (doctor as any).details_specialty,
-        license_number: (doctor as any).details_license_number,
-        education: (doctor as any).details_education,
-        career_summary: (doctor as any).details_career_summary,
-        availability: (doctor as any).details_availability,
+        specialty: raw.details_specialty,
+        license_number: raw.details_license_number,
+        education: raw.details_education,
+        career_summary: raw.details_career_summary,
+        availability: raw.details_availability,
       },
     };
   }
@@ -72,6 +92,7 @@ export class DoctorService {
       async (transactionManager) => {
         const user = await this.commonUserService.createUser(
           transactionManager,
+          UserRole.DOCTOR,
           createUserDto
         );
 
