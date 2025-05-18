@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommonPatientService } from '@med-center-crm/patient';
 import { CommonUserService } from '@med-center-crm/user';
-import { VerificationSuccessfulNotificationEvent } from '@med-center-crm/types';
 import { EmailOrPasswordWrongException } from '../exceptions/email-or-password-wrong.exception';
 import * as bcrypt from 'bcrypt';
 import { Queue } from 'bullmq';
