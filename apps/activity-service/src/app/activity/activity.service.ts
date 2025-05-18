@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { ActivityLogs, GetActivityLogListDto } from '@med-center-crm/types';
+import {
+  ActivityLogEvent,
+  ActivityLogs,
+  GetActivityLogListDto,
+} from '@med-center-crm/types';
 
 @Injectable()
 export class ActivityService {
@@ -54,5 +58,25 @@ export class ActivityService {
       .orderBy('log.activity_log_id', 'DESC')
       .limit(Math.min(limit, 100))
       .getMany();
+  }
+
+  async createActivityLog(event: ActivityLogEvent): Promise<void> {
+    const {
+      user_id,
+      entity_id,
+      entity_type,
+      action_type,
+      ip_address,
+      metadata,
+    } = event.data;
+
+    await this.activityLogRepository.insert({
+      user_id,
+      entity_id,
+      entity_type,
+      action_type,
+      ip_address,
+      metadata,
+    });
   }
 }
