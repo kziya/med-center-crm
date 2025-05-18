@@ -8,4 +8,5 @@ export const RedisConfig: RedisModuleAsyncOptions = {
     url: configService.get<string>('REDIS_URL') as string,
   }),
   inject: [ConfigService],
+  global: true,
 };

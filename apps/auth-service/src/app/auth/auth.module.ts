@@ -6,6 +6,8 @@ import { CommonPatientModule } from '@med-center-crm/patient';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CommonUserModule } from '@med-center-crm/user';
+import { BullModule } from '@nestjs/bullmq';
+import { VerificationSuccessfulNotificationEvent } from '@med-center-crm/types';
 
 @Module({
   imports: [
@@ -20,6 +22,9 @@ import { CommonUserModule } from '@med-center-crm/user';
         },
       }),
       inject: [ConfigService],
+    }),
+    BullModule.registerQueue({
+      name: VerificationSuccessfulNotificationEvent.queue,
     }),
   ],
   controllers: [AuthController],

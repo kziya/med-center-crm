@@ -5,7 +5,7 @@ import { VerificationRequestNotificationEvent } from '@med-center-crm/types';
 import { NotificationService } from '../../notification/notification.service';
 
 @Processor(VerificationRequestNotificationEvent.queue)
-export class VerificationProcessor extends WorkerHost {
+export class VerificationRequestProcessor extends WorkerHost {
   constructor(private readonly notificationService: NotificationService) {
     super();
   }
