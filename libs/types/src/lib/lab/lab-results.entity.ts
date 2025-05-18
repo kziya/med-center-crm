@@ -10,10 +10,10 @@ import {
 
 import { Appointments, Users } from '..';
 
-@Entity('patient_lab_results')
-export class PatientLabResults {
+@Entity('lab_results')
+export class LabResults {
   @PrimaryGeneratedColumn()
-  patient_lab_result_id!: number;
+  lab_result_id!: number;
 
   @Column()
   patient_id!: number;

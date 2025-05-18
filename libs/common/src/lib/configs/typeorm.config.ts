@@ -9,7 +9,7 @@ import {
   DoctorPatientAssignment,
   DoctorReviews,
   PatientDetails,
-  PatientLabResults,
+  LabResults,
   UserContacts,
   Users,
 } from '@med-center-crm/types';
@@ -29,7 +29,7 @@ export const TypeormConfig: TypeOrmModuleAsyncOptions = {
       DoctorPatientAssignment,
       DoctorReviews,
       PatientDetails,
-      PatientLabResults,
+      LabResults,
       Users,
       UserContacts,
     ],
