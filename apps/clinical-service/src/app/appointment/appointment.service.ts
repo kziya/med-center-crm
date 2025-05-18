@@ -136,7 +136,7 @@ export class AppointmentService {
         ...doctorFilter,
         ...patientFilter,
       },
-      relations: ['appointment_details'],
+      relations: ['details'],
     });
 
     if (!appointment) {
