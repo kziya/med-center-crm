@@ -8,7 +8,7 @@ export class UpdateAppointmentGeneralDto {
   })
   @IsOptional()
   @IsDateString()
-  appointment_time?: Date;
+  appointment_time?: string;
 
   @ApiPropertyOptional({
     description: 'Updated notes from the patient',
