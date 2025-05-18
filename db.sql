@@ -124,7 +124,6 @@ CREATE INDEX idx_appointment_doctor_patient ON appointments (doctor_id, patient_
 CREATE TABLE appointment_details (
                                    appointment_detail_id SERIAL PRIMARY KEY,
                                    appointment_id INTEGER UNIQUE REFERENCES appointments(appointment_id) ON DELETE CASCADE,
-                                   visit_date TIMESTAMP NOT NULL,
                                    diagnosis TEXT,
                                    treatment_plan TEXT,
                                    notes TEXT,
@@ -135,8 +134,8 @@ CREATE TABLE appointment_details (
 CREATE UNIQUE INDEX udx_ad_appointment_id ON appointment_details (appointment_id);
 
 -- LAB / TEST RESULTS
-CREATE TABLE patient_lab_results (
-                                   patient_lab_result_id SERIAL PRIMARY KEY,
+CREATE TABLE lab_results (
+                                   lab_results SERIAL PRIMARY KEY,
                                    patient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
                                    doctor_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
                                    appointment_id INTEGER REFERENCES appointments(appointment_id) ON DELETE SET NULL,
@@ -149,9 +148,9 @@ CREATE TABLE patient_lab_results (
                                    updated_at TIMESTAMP DEFAULT now()
 );
 
-CREATE INDEX idx_plr_doctor_list ON patient_lab_results (doctor_id, test_type);
-CREATE INDEX idx_plr_patient_list ON patient_lab_results (patient_id, test_type);
-CREATE INDEX idx_plr_doctor_patient ON patient_lab_results (doctor_id, patient_id);
+CREATE INDEX idx_plr_doctor_list ON lab_results (doctor_id, test_type);
+CREATE INDEX idx_plr_patient_list ON lab_results (patient_id, test_type);
+CREATE INDEX idx_plr_doctor_patient ON lab_results (doctor_id, patient_id);
 
 CREATE TABLE activity_logs (
                              activity_log_id SERIAL,
@@ -173,18 +172,3 @@ CREATE INDEX idx_al_entity_type ON activity_logs (entity_type);
 CREATE INDEX idx_al_action_type ON activity_logs (action_type);
 
 SELECT create_monthly_partitions('activity_logs'::text, NOW()::DATE, (NOW() +  INTERVAL '2 months')::DATE);
-
--- DOCTOR REVIEWS
-CREATE TABLE doctor_reviews (
-                              doctor_review_id SERIAL PRIMARY KEY,
-                              doctor_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-                              patient_id INTEGER REFERENCES users(user_id) ON DELETE CASCADE,
-                              rating SMALLINT CHECK (rating BETWEEN 1 AND 5),
-                              comment TEXT,
-                              created_at TIMESTAMP DEFAULT now(),
-                              updated_at TIMESTAMP DEFAULT now()
-);
-
-
-CREATE INDEX idx_dr_doctor_patient ON doctor_reviews (doctor_id, patient_id);
-CREATE INDEX idx_dr_doctor_list ON doctor_reviews (doctor_id, rating);
