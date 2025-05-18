@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import {
@@ -13,13 +13,14 @@ import {
   Users,
   UserStatus,
 } from '@med-center-crm/types';
-
-import { UserNotFoundException } from './exceptions/user-not-found.exception';
+import { UserNotFoundException } from './exceptions';
+import Redis from 'ioredis';
 
 @Injectable()
 export class CommonUserService {
   constructor(
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+    private readonly redis: Redis
   ) {}
 
   async findByEmail(email: string): Promise<Users | null> {
@@ -106,6 +107,18 @@ export class CommonUserService {
     if (result.affected === 0) {
       throw new UserNotFoundException();
     }
+  }
+
+  async verifyUser(userId: number): Promise<UpdateResult> {
+    return this.userRepository.update(
+      {
+        user_id: userId,
+        status: UserStatus.PENDING,
+      },
+      {
+        status: UserStatus.ACTIVE,
+      }
+    );
   }
 
   async updateUserContact(

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
 import { Public } from '@med-center-crm/auth';
@@ -51,5 +51,11 @@ export class AuthController {
   })
   async refreshToken(@Body() dto: RefreshTokenDto): Promise<AuthResultDto> {
     return this.authService.refreshToken(dto.refreshToken);
+  }
+
+  @Public()
+  @Post('verify/:uid')
+  async verify(@Param('uid') uid: string): Promise<void> {
+    await this.authService.verifyUser(uid);
   }
 }

@@ -5,11 +5,19 @@ import * as bcrypt from 'bcrypt';
 
 import { UserTokenPayload } from '@med-center-crm/auth';
 import { CommonPatientService } from '@med-center-crm/patient';
-import { CreatePatientDto, Users } from '@med-center-crm/types';
+import {
+  CreatePatientDto,
+  Users,
+  UserStatus,
+  VerificationSuccessfulNotificationEvent,
+} from '@med-center-crm/types';
 import { CommonUserService } from '@med-center-crm/user';
 import { EmailOrPasswordWrongException } from './exceptions/email-or-password-wrong.exception';
 import { LoginDto } from './dto/login.dto';
 import { AuthResultDto } from './dto/auth-result.dto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +25,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly commonPatientService: CommonPatientService,
-    private readonly commonUserService: CommonUserService
+    private readonly commonUserService: CommonUserService,
+    @InjectQueue(VerificationSuccessfulNotificationEvent.queue)
+    private readonly verificationSuccessfulQueue: Queue<VerificationSuccessfulNotificationEvent>,
+    private readonly redis: Redis
   ) {}
 
   async login(loginDto: LoginDto): Promise<AuthResultDto> {
@@ -61,6 +72,22 @@ export class AuthService {
     } catch (err) {
       throw new BadRequestException();
     }
+  }
+
+  async verifyUser(uid: string): Promise<void> {
+    const id = await this.redis.get(`VERIFICATION:${uid}`);
+
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    await this.commonUserService.verifyUser(+id);
+
+    const event = new VerificationSuccessfulNotificationEvent({
+      user_id: +id,
+    });
+
+    await this.verificationSuccessfulQueue.add(event.name, event);
   }
 
   private async verifyPassword(

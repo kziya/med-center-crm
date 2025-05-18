@@ -2,32 +2,58 @@ version: '3.8'
 
 services:
 
-#  auth-service:
-#    build:
-#      context: .
-#      dockerfile: apps/auth-service/Dockerfile
-#    ports:
-#      - "3000:3000"
-#    environment:
-#      - PORT=3000
-#      - JWT_ACCESS_TOKEN_SECRET=some-secret
-#      - JWT_ACCESS_TOKEN_TTL=15m
-#      - JWT_REFRESH_TOKEN_SECRET=some-secret
-#      - JWT_REFRESH_TOKEN_TTL=1d
-#      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
-#      - REDIS_URL=redis://redis:6379
-#
-#  user-service:
-#    build:
-#      context: .
-#      dockerfile: apps/user-service/Dockerfile
-#    ports:
-#      - "3001:3001"
-#    environment:
-#      - PORT=3001
-#      - JWT_ACCESS_TOKEN_SECRET=some-secret
-#      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
-#      - REDIS_URL=redis://redis:6379
+  auth-service:
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - JWT_ACCESS_TOKEN_TTL=15m
+      - JWT_REFRESH_TOKEN_SECRET=some-secret
+      - JWT_REFRESH_TOKEN_TTL=1d
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+
+
+  clinical-service:
+    build:
+      context: .
+      dockerfile: apps/clinical-service/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: apps/notification-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+      - MAIL_TRANSPORTER_URL=test
 
   postgres:
     image: postgres:17
