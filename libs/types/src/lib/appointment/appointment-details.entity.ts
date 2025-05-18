@@ -18,9 +18,6 @@ export class AppointmentDetails {
   @Column()
   appointment_id!: number;
 
-  @Column({ type: 'timestamp' })
-  visit_date!: Date;
-
   @Column({ type: 'text', nullable: true })
   diagnosis?: string;
 

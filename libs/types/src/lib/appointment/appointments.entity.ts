@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 
 import { Users } from '../user';
-import { AppointmentStatus } from './appointment-status.enum';
+import { AppointmentStatus } from './enum';
+import { AppointmentDetails } from './appointment-details.entity';
 
 @Entity('appointments')
 export class Appointments {
@@ -29,9 +31,6 @@ export class Appointments {
   status!: AppointmentStatus;
 
   @Column({ type: 'text', nullable: true })
-  doctor_notes?: string;
-
-  @Column({ type: 'text', nullable: true })
   patient_notes?: string;
 
   @CreateDateColumn()
@@ -47,4 +46,9 @@ export class Appointments {
   @ManyToOne(() => Users, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'patient_id' })
   patient!: Users;
+
+  @OneToOne(() => AppointmentDetails, (details) => details.appointment, {
+    cascade: true,
+  })
+  details!: AppointmentDetails;
 }
