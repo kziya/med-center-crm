@@ -19,6 +19,13 @@
           "buildTarget": "notification-service:build:production"
         }
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "passWithNoTests": true,
+        "jestConfig": "libs/types/jest.config.ts"
+      }
     }
   }
 }
