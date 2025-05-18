@@ -2,7 +2,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { CommonAuthModule } from '@med-center-crm/auth';
 import { CommonPatientModule } from '@med-center-crm/patient';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';

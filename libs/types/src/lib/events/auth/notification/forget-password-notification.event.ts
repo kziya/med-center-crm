@@ -1,6 +1,6 @@
 import { BaseEvent } from '../../base.event';
 
-export type ForgetPasswordNotificationEventData = {};
+export type ForgetPasswordNotificationEventData = any;
 
 export class ForgetPasswordNotificationEvent extends BaseEvent<ForgetPasswordNotificationEventData> {
   static override readonly queue = 'forget_password_notification_queue';
