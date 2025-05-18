@@ -32,8 +32,8 @@ export class ActivityLogs {
   @Column({ type: 'varchar', length: 45, nullable: true })
   ip_address?: string;
 
-  @Column({ type: 'text', nullable: true })
-  details?: string;
+  @Column({ type: 'json', nullable: true })
+  metadata?: Record<string, any>;
 
   @CreateDateColumn()
   created_at!: Date;

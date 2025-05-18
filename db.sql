@@ -155,13 +155,11 @@ CREATE INDEX idx_plr_doctor_patient ON lab_results (doctor_id, patient_id);
 CREATE TABLE activity_logs (
                              activity_log_id SERIAL,
                              user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
-                             entity_id INTEGER,
-                             entity_type VARCHAR(50),
-                             action_type VARCHAR(30) CHECK (
-                               action_type IN ('create', 'update', 'delete', 'login', 'logout', 'assign', 'review', 'status_change')
-                               ) NOT NULL,
+                             entity_id INTEGER NOT NULL,
+                             entity_type VARCHAR(50) NOT NULL,
+                             action_type VARCHAR(30)  NOT NULL,
                              ip_address VARCHAR(45),
-                             details TEXT,
+                             metadata JSON,
                              created_at TIMESTAMP DEFAULT now(),
                              updated_at TIMESTAMP DEFAULT now(),
                              PRIMARY KEY (activity_log_id, created_at)
