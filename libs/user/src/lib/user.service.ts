@@ -19,8 +19,7 @@ import Redis from 'ioredis';
 @Injectable()
 export class CommonUserService {
   constructor(
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
-    private readonly redis: Redis
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>
   ) {}
 
   async findByEmail(email: string): Promise<Users | null> {

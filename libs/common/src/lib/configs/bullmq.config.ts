@@ -6,7 +6,6 @@ export const BullMQConfig: SharedBullAsyncConfiguration = {
   useFactory: (configService: ConfigService) => ({
     connection: {
       url: configService.get('REDIS_URL'),
-      tls: {},
     },
     defaultJobOptions: {
       removeOnComplete: true,
