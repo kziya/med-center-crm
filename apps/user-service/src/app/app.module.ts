@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 
-import { TypeormConfig } from '@med-center-crm/common';
+import { BullMQConfig, TypeormConfig } from '@med-center-crm/common';
 import { CommonAuthModule } from '@med-center-crm/auth';
 import { AdminModule } from './admin/admin.module';
 import { DoctorModule } from './doctor/doctor.module';
@@ -16,6 +17,7 @@ import { PatientModule } from './patient/patient.module';
     AdminModule,
     DoctorModule,
     PatientModule,
+    BullModule.forRootAsync(BullMQConfig),
   ],
   controllers: [],
   providers: [],
