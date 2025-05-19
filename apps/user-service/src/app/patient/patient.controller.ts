@@ -30,7 +30,7 @@ import { PatientService } from './patient.service';
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.PATIENT)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR)
   @Get('list')
   @ApiOperation({ summary: 'Get list of users with optional filters' })
   @ApiResponse({
