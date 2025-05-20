@@ -1,7 +1,7 @@
 import { BaseEvent } from '../../base.event';
 
 export type ResetPasswordSendNotificationEventData = {
-  id_user: number;
+  user_id: number;
   uid: string;
 };
 

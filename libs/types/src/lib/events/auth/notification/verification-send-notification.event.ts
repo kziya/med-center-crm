@@ -2,6 +2,7 @@ import { BaseEvent } from '../../base.event';
 
 export type VerificationNotificationEventData = {
   user_id: number;
+  uid: string;
 };
 
 export class VerificationSendNotificationEvent extends BaseEvent<VerificationNotificationEventData> {

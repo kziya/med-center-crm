@@ -1,7 +1,7 @@
 import { BaseEvent } from '../../base.event';
 
 export type ResetPasswordSuccessfulEventData = {
-  id_user: number;
+  user_id: number;
 };
 
 export class ResetPasswordSuccessfulNotificationEvent extends BaseEvent<ResetPasswordSuccessfulEventData> {

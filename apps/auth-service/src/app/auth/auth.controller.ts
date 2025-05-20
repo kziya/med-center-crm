@@ -64,6 +64,8 @@ export class AuthController {
 
   @Public()
   @Post('verify/send')
+  @ApiOperation({ summary: 'Send verification email to the user' })
+  @ApiBody({ type: SendVerifyDto })
   async sendVerify(@Body() sendVerify: SendVerifyDto): Promise<void> {
     return this.authService.sendVerifyNotification(sendVerify);
   }
@@ -82,6 +84,8 @@ export class AuthController {
 
   @Public()
   @Post('reset-password/send')
+  @ApiOperation({ summary: 'Send password reset email to the user' })
+  @ApiBody({ type: SendResetPasswordDto })
   async sendResetPassword(
     @Body() sendResetPasswordDto: SendResetPasswordDto
   ): Promise<void> {

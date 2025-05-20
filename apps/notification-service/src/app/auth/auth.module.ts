@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
 
-import { ForgetPasswordProcessor } from './processors/forget-password.processor';
-import { VerificationRequestProcessor } from './processors/verification-request.processor';
+import { CommonUserModule } from '@med-center-crm/user';
+import { ResetPasswordSendProcessor } from './processors/reset-password-send.processor';
+import { VerificationSendProcessor } from './processors/verification-send.processor';
 import { VerificationSuccessfulProcessor } from './processors/verification-successful.processor';
+import { ResetPasswordSuccessfulProcessor } from './processors/reset-password-successful.processor';
 
 @Module({
+  imports: [CommonUserModule],
   providers: [
-    ForgetPasswordProcessor,
-    VerificationRequestProcessor,
+    ResetPasswordSendProcessor,
+    ResetPasswordSuccessfulProcessor,
+    VerificationSendProcessor,
     VerificationSuccessfulProcessor,
   ],
 })

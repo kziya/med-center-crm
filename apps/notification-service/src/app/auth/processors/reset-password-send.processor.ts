@@ -1,19 +1,19 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
 
 import {
+  ResetPasswordSendNotificationEvent,
   Users,
-  VerificationSuccessfulNotificationEvent,
 } from '@med-center-crm/types';
 import { NotificationService } from '../../notification/notification.service';
-import { CommonUserService } from '@med-center-crm/user';
+import { Job } from 'bullmq';
 import {
   NotificationMessage,
   NotificationType,
 } from '../../notification/notification.types';
+import { CommonUserService } from '@med-center-crm/user';
 
-@Processor(VerificationSuccessfulNotificationEvent.queue)
-export class VerificationSuccessfulProcessor extends WorkerHost {
+@Processor(ResetPasswordSendNotificationEvent.queue)
+export class ResetPasswordSendProcessor extends WorkerHost {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly commonUserService: CommonUserService
@@ -21,9 +21,7 @@ export class VerificationSuccessfulProcessor extends WorkerHost {
     super();
   }
 
-  async process(
-    job: Job<VerificationSuccessfulNotificationEvent>
-  ): Promise<void> {
+  async process(job: Job<ResetPasswordSendNotificationEvent>): Promise<any> {
     const event = job.data;
     const user = await this.commonUserService.findById(event.data.user_id);
 
@@ -31,18 +29,21 @@ export class VerificationSuccessfulProcessor extends WorkerHost {
       return;
     }
 
-    const notificationMessage = this.createNotificationMessage(user);
+    const notificationMessage = this.createNotificationMessage(event, user);
 
     await this.notificationService.sendNotification(notificationMessage);
   }
 
-  private createNotificationMessage(user: Users): NotificationMessage {
+  private createNotificationMessage(
+    event: ResetPasswordSendNotificationEvent,
+    user: Users
+  ): NotificationMessage {
     return {
       type: NotificationType.Email,
       data: {
         to: user.email,
-        subject: 'Verify Account Successful',
-        html: `${user.full_name} verify account successful !`,
+        subject: 'Reset Password',
+        html: `Reset password link <a href="#">${event.data.uid}</a>`,
       },
     };
   }

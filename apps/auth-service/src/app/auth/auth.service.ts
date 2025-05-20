@@ -110,12 +110,12 @@ export class AuthService {
     }
 
     const uid = await this.setUID('VERIFY_USER', user.user_id, 360);
-    const event = new ResetPasswordSendNotificationEvent({
+    const event = new VerificationSendNotificationEvent({
       uid,
-      id_user: user.user_id,
+      user_id: user.user_id,
     });
 
-    await this.resetPasswordSendNotificationQueue.add(event.name, event);
+    await this.verificationSendNotificationQueue.add(event.name, event);
   }
 
   async resetPassword(
@@ -133,7 +133,7 @@ export class AuthService {
     });
 
     const event = new ResetPasswordSuccessfulNotificationEvent({
-      id_user: +id,
+      user_id: +id,
     });
 
     await this.resetPasswordSuccessfulQueue.add(event.name, event);
@@ -153,7 +153,7 @@ export class AuthService {
     const uid = await this.setUID('RESET_PASSWORD', user.user_id, 360);
 
     const event = new ResetPasswordSendNotificationEvent({
-      id_user: user.user_id,
+      user_id: user.user_id,
       uid,
     });
     await this.resetPasswordSendNotificationQueue.add(event.name, event);
