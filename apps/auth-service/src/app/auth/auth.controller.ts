@@ -1,5 +1,11 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 
 import { Public } from '@med-center-crm/auth';
 import { CreatePatientDto } from '@med-center-crm/types';
@@ -7,6 +13,9 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthResultDto } from './dto/auth-result.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SendResetPasswordDto } from './dto/send-reset-password.dto';
+import { SendVerifyDto } from './dto/send-verify.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -54,8 +63,44 @@ export class AuthController {
   }
 
   @Public()
+  @Post('verify/send')
+  async sendVerify(@Body() sendVerify: SendVerifyDto): Promise<void> {
+    return this.authService.sendVerifyNotification(sendVerify);
+  }
+
+  @Public()
   @Post('verify/:uid')
+  @ApiOperation({ summary: 'Verify a user by UID' })
+  @ApiParam({
+    name: 'uid',
+    description: 'User identifier from verification email or token',
+    example: '12345-abcde',
+  })
   async verify(@Param('uid') uid: string): Promise<void> {
     await this.authService.verifyUser(uid);
+  }
+
+  @Public()
+  @Post('reset-password/send')
+  async sendResetPassword(
+    @Body() sendResetPasswordDto: SendResetPasswordDto
+  ): Promise<void> {
+    return this.authService.sendResetPasswordNotification(sendResetPasswordDto);
+  }
+
+  @Public()
+  @Post('reset-password/:uid')
+  @ApiOperation({ summary: 'Reset user password by UID' })
+  @ApiParam({
+    name: 'uid',
+    description: 'User identifier from verification email or token',
+    example: '12345-abcde',
+  })
+  @ApiBody({ type: ResetPasswordDto })
+  async resetPassword(
+    @Param('uid') uid: string,
+    @Body() updatePasswordDto: ResetPasswordDto
+  ): Promise<void> {
+    return this.authService.resetPassword(uid, updatePasswordDto);
   }
 }

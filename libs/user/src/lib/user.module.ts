@@ -4,7 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 
 import {
   Users,
-  VerificationRequestNotificationEvent,
+  VerificationSendNotificationEvent,
 } from '@med-center-crm/types';
 import { CommonUserService } from './user.service';
 
@@ -12,7 +12,7 @@ import { CommonUserService } from './user.service';
   imports: [
     TypeOrmModule.forFeature([Users]),
     BullModule.registerQueue({
-      name: VerificationRequestNotificationEvent.queue,
+      name: VerificationSendNotificationEvent.queue,
     }),
   ],
   providers: [CommonUserService],

@@ -61,13 +61,7 @@ export class AdminService {
   ): Promise<void> {
     this.validateAccess(userTokenPayload, id);
 
-    return this.userRepository.manager.transaction((transactionManager) =>
-      this.commonUserService.updateUserGeneral(
-        transactionManager,
-        id,
-        updateUserGeneral
-      )
-    );
+    return this.commonUserService.updateUserGeneral(id, updateUserGeneral);
   }
 
   async updateAdminContact(

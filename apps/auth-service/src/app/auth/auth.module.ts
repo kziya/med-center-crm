@@ -1,13 +1,18 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 
+import { CommonUserModule } from '@med-center-crm/user';
+import {
+  ResetPasswordSendNotificationEvent,
+  ResetPasswordSuccessfulNotificationEvent,
+  VerificationSendNotificationEvent,
+  VerificationSuccessfulNotificationEvent,
+} from '@med-center-crm/types';
 import { CommonPatientModule } from '@med-center-crm/patient';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CommonUserModule } from '@med-center-crm/user';
-import { BullModule } from '@nestjs/bullmq';
-import { VerificationSuccessfulNotificationEvent } from '@med-center-crm/types';
 
 @Module({
   imports: [
@@ -23,9 +28,20 @@ import { VerificationSuccessfulNotificationEvent } from '@med-center-crm/types';
       }),
       inject: [ConfigService],
     }),
-    BullModule.registerQueue({
-      name: VerificationSuccessfulNotificationEvent.queue,
-    }),
+    BullModule.registerQueue(
+      {
+        name: VerificationSuccessfulNotificationEvent.queue,
+      },
+      {
+        name: VerificationSendNotificationEvent.queue,
+      },
+      {
+        name: ResetPasswordSendNotificationEvent.queue,
+      },
+      {
+        name: ResetPasswordSuccessfulNotificationEvent.queue,
+      }
+    ),
   ],
   controllers: [AuthController],
   providers: [AuthService],

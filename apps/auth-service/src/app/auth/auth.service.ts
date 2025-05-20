@@ -8,8 +8,10 @@ import { CommonPatientService } from '@med-center-crm/patient';
 import {
   CreatePatientDto,
   Users,
-  UserStatus,
   VerificationSuccessfulNotificationEvent,
+  ResetPasswordSuccessfulNotificationEvent,
+  ResetPasswordSendNotificationEvent,
+  VerificationSendNotificationEvent,
 } from '@med-center-crm/types';
 import { CommonUserService } from '@med-center-crm/user';
 import { EmailOrPasswordWrongException } from './exceptions/email-or-password-wrong.exception';
@@ -18,6 +20,10 @@ import { AuthResultDto } from './dto/auth-result.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import Redis from 'ioredis';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SendResetPasswordDto } from './dto/send-reset-password.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { SendVerifyDto } from './dto/send-verify.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +34,12 @@ export class AuthService {
     private readonly commonUserService: CommonUserService,
     @InjectQueue(VerificationSuccessfulNotificationEvent.queue)
     private readonly verificationSuccessfulQueue: Queue<VerificationSuccessfulNotificationEvent>,
+    @InjectQueue(VerificationSendNotificationEvent.queue)
+    private readonly verificationSendNotificationQueue: Queue<VerificationSendNotificationEvent>,
+    @InjectQueue(ResetPasswordSuccessfulNotificationEvent.queue)
+    private readonly resetPasswordSuccessfulQueue: Queue<ResetPasswordSuccessfulNotificationEvent>,
+    @InjectQueue(ResetPasswordSendNotificationEvent.queue)
+    private readonly resetPasswordSendNotificationQueue: Queue<ResetPasswordSendNotificationEvent>,
     private readonly redis: Redis
   ) {}
 
@@ -75,7 +87,7 @@ export class AuthService {
   }
 
   async verifyUser(uid: string): Promise<void> {
-    const id = await this.redis.get(`VERIFICATION:${uid}`);
+    const id = await this.redis.get(`VERIFY_USER:${uid}`);
 
     if (!id) {
       throw new BadRequestException();
@@ -88,6 +100,75 @@ export class AuthService {
     });
 
     await this.verificationSuccessfulQueue.add(event.name, event);
+  }
+
+  async sendVerifyNotification(sendVerifyDto: SendVerifyDto): Promise<void> {
+    const user = await this.commonUserService.findById(sendVerifyDto.user_id);
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const uid = await this.setUID('VERIFY_USER', user.user_id, 360);
+    const event = new ResetPasswordSendNotificationEvent({
+      uid,
+      id_user: user.user_id,
+    });
+
+    await this.resetPasswordSendNotificationQueue.add(event.name, event);
+  }
+
+  async resetPassword(
+    uid: string,
+    passwordUpdateDto: ResetPasswordDto
+  ): Promise<void> {
+    const id = await this.redis.get(`RESET_PASSWORD:${uid}`);
+
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    await this.commonUserService.updateUserGeneral(+id, {
+      password: passwordUpdateDto.password,
+    });
+
+    const event = new ResetPasswordSuccessfulNotificationEvent({
+      id_user: +id,
+    });
+
+    await this.resetPasswordSuccessfulQueue.add(event.name, event);
+  }
+
+  async sendResetPasswordNotification(
+    sendResetPassword: SendResetPasswordDto
+  ): Promise<void> {
+    const user = await this.commonUserService.findByEmail(
+      sendResetPassword.email
+    );
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const uid = await this.setUID('RESET_PASSWORD', user.user_id, 360);
+
+    const event = new ResetPasswordSendNotificationEvent({
+      id_user: user.user_id,
+      uid,
+    });
+    await this.resetPasswordSendNotificationQueue.add(event.name, event);
+  }
+
+  private async setUID(
+    type: string,
+    id: number,
+    expireInSec: number
+  ): Promise<string> {
+    const uid = uuidv4();
+
+    await this.redis.set(`${type}:${uid}`, id, 'EX', expireInSec);
+
+    return uid;
   }
 
   private async verifyPassword(

@@ -75,11 +75,7 @@ describe('AdminService', () => {
 
       await service.updateAdminGeneral(payload, 1, dto);
 
-      expect(commonUserService.updateUserGeneral).toHaveBeenCalledWith(
-        expect.anything(),
-        1,
-        dto
-      );
+      expect(commonUserService.updateUserGeneral).toHaveBeenCalledWith(1, dto);
     });
 
     it('should throw ForbiddenException when admin tries to update another user', async () => {

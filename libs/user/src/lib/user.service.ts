@@ -14,13 +14,20 @@ import {
   UserStatus,
 } from '@med-center-crm/types';
 import { UserNotFoundException } from './exceptions';
-import Redis from 'ioredis';
 
 @Injectable()
 export class CommonUserService {
   constructor(
     @InjectRepository(Users) private readonly userRepository: Repository<Users>
   ) {}
+
+  async findById(id: number): Promise<Users | null> {
+    return this.userRepository.findOne({
+      where: {
+        user_id: id,
+      },
+    });
+  }
 
   async findByEmail(email: string): Promise<Users | null> {
     return this.userRepository.findOne({ where: { email } });
@@ -85,7 +92,6 @@ export class CommonUserService {
   }
 
   async updateUserGeneral(
-    entityManager: EntityManager,
     id: number,
     updateUserGeneralDto: UpdateUserGeneralDto
   ): Promise<void> {
@@ -97,8 +103,7 @@ export class CommonUserService {
       updateProperties.password_hash = await this.hashPassword(password);
     }
 
-    const result = await entityManager.update(
-      Users,
+    const result = await this.userRepository.update(
       { user_id: id },
       updateProperties
     );
