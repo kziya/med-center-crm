@@ -23,7 +23,6 @@ import Redis from 'ioredis';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendResetPasswordDto } from './dto/send-reset-password.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { SendVerifyDto } from './dto/send-verify.dto';
 
 @Injectable()
 export class AuthService {
@@ -102,8 +101,10 @@ export class AuthService {
     await this.verificationSuccessfulQueue.add(event.name, event);
   }
 
-  async sendVerifyNotification(sendVerifyDto: SendVerifyDto): Promise<void> {
-    const user = await this.commonUserService.findById(sendVerifyDto.user_id);
+  async sendVerifyNotification(
+    userTokenPayload: UserTokenPayload
+  ): Promise<void> {
+    const user = await this.commonUserService.findById(userTokenPayload.id);
 
     if (!user) {
       throw new BadRequestException();

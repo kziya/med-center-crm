@@ -7,7 +7,11 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 
-import { Public } from '@med-center-crm/auth';
+import {
+  GetUserTokenPayload,
+  Public,
+  UserTokenPayload,
+} from '@med-center-crm/auth';
 import { CreatePatientDto } from '@med-center-crm/types';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -62,12 +66,13 @@ export class AuthController {
     return this.authService.refreshToken(dto.refreshToken);
   }
 
-  @Public()
   @Post('verify/send')
   @ApiOperation({ summary: 'Send verification email to the user' })
   @ApiBody({ type: SendVerifyDto })
-  async sendVerify(@Body() sendVerify: SendVerifyDto): Promise<void> {
-    return this.authService.sendVerifyNotification(sendVerify);
+  async sendVerify(
+    @GetUserTokenPayload() tokenPayload: UserTokenPayload
+  ): Promise<void> {
+    return this.authService.sendVerifyNotification(tokenPayload);
   }
 
   @Public()

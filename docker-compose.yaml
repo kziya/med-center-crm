@@ -11,9 +11,9 @@ services:
     environment:
       - PORT=3000
       - JWT_ACCESS_TOKEN_SECRET=some-secret
-      - JWT_ACCESS_TOKEN_TTL=15m
-      - JWT_REFRESH_TOKEN_SECRET=some-secret
-      - JWT_REFRESH_TOKEN_TTL=1d
+      - JWT_ACCESS_TOKEN_TTL=365d
+      - JWT_REFRESH_TOKEN_SECRET=some-secret-2
+      - JWT_REFRESH_TOKEN_TTL=365d
       - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
 
@@ -52,7 +52,7 @@ services:
       - JWT_ACCESS_TOKEN_SECRET=some-secret
       - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
-      - MAIL_TRANSPORTER_URL=test
+      - MAIL_TRANSPORTER_URL=smtps://urlshortenermailer00@gmail.com:kxselprlukqheqtj@smtp.gmail.com
 
   postgres:
     image: postgres:17
