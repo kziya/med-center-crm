@@ -80,7 +80,7 @@ export class AppointmentService {
     const query = this.appointmentRepository
       .createQueryBuilder('a')
       .select(
-        'a.doctor_id, a.patient_id, a.appointment_time, a.status, a.patient_notes'
+        'a.appointment_id, a.doctor_id, a.patient_id, a.appointment_time, a.status, a.patient_notes'
       );
 
     if (getAppointmentListDto.doctor_id) {
