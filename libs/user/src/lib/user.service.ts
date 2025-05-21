@@ -18,7 +18,9 @@ import { UserNotFoundException } from './exceptions';
 @Injectable()
 export class CommonUserService {
   constructor(
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+    @InjectRepository(UserContacts)
+    private readonly userContactsRepository: Repository<UserContacts>
   ) {}
 
   async findById(id: number): Promise<Users | null> {
@@ -126,12 +128,10 @@ export class CommonUserService {
   }
 
   async updateUserContact(
-    entityManager: EntityManager,
     id: number,
     updateUserContactDto: UpdateUserContactDto
   ): Promise<void> {
-    const result = await entityManager.update(
-      UserContacts,
+    const result = await this.userContactsRepository.update(
       { user_id: id },
       updateUserContactDto
     );

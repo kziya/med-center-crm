@@ -111,11 +111,7 @@ describe('PatientService', () => {
 
       await service.updatePatientContact(payload, 1, dto);
 
-      expect(commonUserService.updateUserContact).toHaveBeenCalledWith(
-        expect.anything(),
-        1,
-        dto
-      );
+      expect(commonUserService.updateUserContact).toHaveBeenCalledWith(1, dto);
     });
 
     it('should throw ForbiddenException if patient tries to update another user', async () => {

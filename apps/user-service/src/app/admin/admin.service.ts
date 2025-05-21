@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import {
+  ActivityLogEvent,
   CreateUserDto,
   GetUserListDto,
   UpdateUserContactDto,
@@ -13,12 +14,16 @@ import {
 } from '@med-center-crm/types';
 import { CommonUserService } from '@med-center-crm/user';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly commonUserService: CommonUserService,
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+    @InjectQueue(ActivityLogEvent.queue)
+    private readonly activityLogQueue: Queue<ActivityLogEvent>
   ) {}
 
   async getAdminList(getUserListDto: GetUserListDto): Promise<Users[]> {
@@ -71,13 +76,7 @@ export class AdminService {
   ): Promise<void> {
     this.validateAccess(userTokenPayload, id);
 
-    return this.userRepository.manager.transaction((transactionManager) =>
-      this.commonUserService.updateUserContact(
-        transactionManager,
-        id,
-        updateUserContact
-      )
-    );
+    return this.commonUserService.updateUserContact(id, updateUserContact);
   }
 
   private validateAccess(userTokenPayload: UserTokenPayload, id: number): void {

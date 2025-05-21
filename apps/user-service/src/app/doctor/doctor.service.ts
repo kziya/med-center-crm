@@ -126,13 +126,7 @@ export class DoctorService {
   ): Promise<void> {
     this.validateAccess(userTokenPayload, id);
 
-    return this.userRepository.manager.transaction((transactionManager) =>
-      this.commonUserService.updateUserContact(
-        transactionManager,
-        id,
-        updateUserContact
-      )
-    );
+    return this.commonUserService.updateUserContact(id, updateUserContact);
   }
 
   async updateDoctorDetails(
