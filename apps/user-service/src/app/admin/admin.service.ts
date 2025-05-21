@@ -21,9 +21,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 export class AdminService {
   constructor(
     private readonly commonUserService: CommonUserService,
-    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
-    @InjectQueue(ActivityLogEvent.queue)
-    private readonly activityLogQueue: Queue<ActivityLogEvent>
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>
   ) {}
 
   async getAdminList(getUserListDto: GetUserListDto): Promise<Users[]> {
