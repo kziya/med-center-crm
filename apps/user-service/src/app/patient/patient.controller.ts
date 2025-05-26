@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -129,5 +130,19 @@ export class PatientController {
     @Param('id') id: string
   ): Promise<PatientFullDto> {
     return this.patientService.getPatientById(payload, +id);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a patient by ID' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the patient to delete',
+  })
+  @ApiResponse({ status: 200, description: 'Patient successfully deleted' })
+  @ApiResponse({ status: 404, description: 'Patient not found' })
+  async deletePatient(@Param('id') id: string): Promise<void> {
+    await this.patientService.deletePatient(+id);
   }
 }

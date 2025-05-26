@@ -141,6 +141,12 @@ export class CommonUserService {
     }
   }
 
+  async deleteUser(id: number): Promise<void> {
+    await this.userRepository.delete({
+      user_id: id,
+    });
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 12);
   }

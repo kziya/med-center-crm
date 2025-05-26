@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -123,5 +124,23 @@ export class DoctorController {
     @Param('id') id: string
   ): Promise<DoctorFullDto> {
     return this.doctorService.getDoctorById(payload, +id);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a doctor by ID (only for admins)' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the doctor to delete',
+  })
+  @ApiResponse({ status: 200, description: 'Doctor successfully deleted' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. Insufficient permissions.',
+  })
+  @ApiResponse({ status: 404, description: 'Doctor not found' })
+  async deleteDoctor(@Param('id') id: string): Promise<void> {
+    await this.doctorService.deleteDoctor(+id);
   }
 }

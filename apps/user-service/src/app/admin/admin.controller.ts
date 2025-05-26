@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -111,5 +112,23 @@ export class AdminController {
     @Param('id') id: string
   ): Promise<UserFullDto> {
     return this.adminService.getAdminById(payload, +id);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete an admin by ID (only for SUPER_ADMIN)' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID of the admin to delete',
+  })
+  @ApiResponse({ status: 200, description: 'Admin successfully deleted' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden. Only SUPER_ADMIN has access.',
+  })
+  @ApiResponse({ status: 404, description: 'Admin not found' })
+  async deleteAdmin(@Param('id') id: string): Promise<void> {
+    await this.adminService.deleteAdmin(+id);
   }
 }

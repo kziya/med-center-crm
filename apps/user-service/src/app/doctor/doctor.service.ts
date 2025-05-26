@@ -147,6 +147,10 @@ export class DoctorService {
     return;
   }
 
+  async deleteDoctor(id: number): Promise<void> {
+    return this.commonUserService.deleteUser(id);
+  }
+
   private validateAccess(userTokenPayload: UserTokenPayload, id: number): void {
     if (
       userTokenPayload.role === UserRole.DOCTOR &&
