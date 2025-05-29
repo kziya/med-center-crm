@@ -5,13 +5,13 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { AsyncLocalStorage } from 'async_hooks';
 
 import { UserTokenPayload } from '../types';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
 
 @Injectable()
 export class SetAsyncContextInterceptor implements NestInterceptor {
-  constructor(private readonly asyncStorage: AsyncLocalStorage<any>) {}
+  constructor(private readonly asyncStorage: AsyncLocalStorageService) {}
 
   intercept(
     context: ExecutionContext,

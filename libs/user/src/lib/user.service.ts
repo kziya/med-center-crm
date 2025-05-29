@@ -4,6 +4,9 @@ import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import {
+  ActivityActionType,
+  ActivityEntityType,
+  ActivityLogEvent,
   CreateUserDto,
   GetUserListDto,
   UpdateUserContactDto,
@@ -14,13 +17,19 @@ import {
   UserStatus,
 } from '@med-center-crm/types';
 import { UserNotFoundException } from './exceptions';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
 
 @Injectable()
 export class CommonUserService {
   constructor(
     @InjectRepository(Users) private readonly userRepository: Repository<Users>,
     @InjectRepository(UserContacts)
-    private readonly userContactsRepository: Repository<UserContacts>
+    private readonly userContactsRepository: Repository<UserContacts>,
+    @InjectQueue(ActivityLogEvent.queue)
+    private readonly activityLogEventQueue: Queue<ActivityLogEvent>,
+    private readonly asyncLocalStorageService: AsyncLocalStorageService
   ) {}
 
   async findById(id: number): Promise<Users | null> {
@@ -90,6 +99,23 @@ export class CommonUserService {
       phone: createUserDto.contact.phone,
     });
 
+    const { password, ...restCreateDto } = createUserDto;
+    const { tokenPayload, ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.CREATE,
+      entity_id: user.user_id,
+      entity_type: ActivityEntityType.USER,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: restCreateDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
+
     return user;
   }
 
@@ -113,6 +139,22 @@ export class CommonUserService {
     if (result.affected === 0) {
       throw new UserNotFoundException();
     }
+
+    const { tokenPayload, ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_type: ActivityEntityType.USER,
+      entity_id: id,
+      user_id: tokenPayload.id,
+      ip_address: ipAddress,
+      metadata: {
+        newData: updateProperties,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   async verifyUser(userId: number): Promise<UpdateResult> {
@@ -139,12 +181,42 @@ export class CommonUserService {
     if (result.affected === 0) {
       throw new UserNotFoundException();
     }
+
+    const { tokenPayload, ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_type: ActivityEntityType.USER,
+      entity_id: id,
+      user_id: tokenPayload.id,
+      ip_address: ipAddress,
+      metadata: {
+        newData: updateUserContactDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   async deleteUser(id: number): Promise<void> {
     await this.userRepository.delete({
       user_id: id,
     });
+
+    const { tokenPayload, ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.DELETE,
+      entity_type: ActivityEntityType.USER,
+      entity_id: id,
+      user_id: tokenPayload.id,
+      ip_address: ipAddress,
+      metadata: {},
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   private async hashPassword(password: string): Promise<string> {
