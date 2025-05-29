@@ -1,20 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
+import { Queue } from 'bullmq';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
 import {
-  Appointments,
   LabResults,
+  Appointments,
   CreateLabResultDto,
+  UpdateLabResultDto,
   UserRole,
+  ActivityLogEvent,
+  UserTokenPayload,
 } from '@med-center-crm/types';
+import {
+  ForbiddenException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { LabResultService } from '../lab-result.service';
-import { UserTokenPayload } from '@med-center-crm/auth';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { getQueueToken } from '@nestjs/bullmq';
 
-describe('LabResultService', () => {
+describe('LabResultService - Detailed Tests', () => {
   let service: LabResultService;
-  let labRepo: jest.Mocked<Repository<LabResults>>;
-  let appointmentRepo: jest.Mocked<Repository<Appointments>>;
+  let labResultsRepo: jest.Mocked<Repository<LabResults>>;
+  let appointmentsRepo: jest.Mocked<Repository<Appointments>>;
+  let queue: jest.Mocked<Queue>;
+  let alsService: jest.Mocked<AsyncLocalStorageService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -23,7 +34,15 @@ describe('LabResultService', () => {
         {
           provide: getRepositoryToken(LabResults),
           useValue: {
-            createQueryBuilder: jest.fn(),
+            createQueryBuilder: jest.fn(() => ({
+              select: jest.fn().mockReturnThis(),
+              where: jest.fn().mockReturnThis(),
+              andWhere: jest.fn().mockReturnThis(),
+              innerJoin: jest.fn().mockReturnThis(),
+              limit: jest.fn().mockReturnThis(),
+              orderBy: jest.fn().mockReturnThis(),
+              getRawMany: jest.fn().mockResolvedValue([{ test_name: 'CBC' }]),
+            })),
             save: jest.fn(),
             update: jest.fn(),
           },
@@ -34,56 +53,92 @@ describe('LabResultService', () => {
             findOne: jest.fn(),
           },
         },
+        {
+          provide: AsyncLocalStorageService,
+          useValue: {
+            getTokenPayloadAndIpAddress: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken(ActivityLogEvent.queue),
+          useValue: {
+            add: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get(LabResultService);
-    labRepo = module.get(getRepositoryToken(LabResults));
-    appointmentRepo = module.get(getRepositoryToken(Appointments));
+    labResultsRepo = module.get(getRepositoryToken(LabResults));
+    appointmentsRepo = module.get(getRepositoryToken(Appointments));
+    queue = module.get(getQueueToken(ActivityLogEvent.queue));
+    alsService = module.get(AsyncLocalStorageService);
+  });
+
+  describe('getLabResultList', () => {
+    it('allows doctor with correct access', async () => {
+      const token = { id: 1, role: UserRole.DOCTOR } as UserTokenPayload;
+      const result = await service.getLabResultList(token, 2, {});
+
+      expect(result).toEqual([{ test_name: 'CBC' }]);
+      expect(labResultsRepo.createQueryBuilder).toHaveBeenCalled();
+    });
+
+    it('denies patient accessing other patients data', async () => {
+      const token = { id: 3, role: UserRole.PATIENT } as UserTokenPayload;
+      await expect(service.getLabResultList(token, 2, {})).rejects.toThrow(
+        ForbiddenException
+      );
+    });
   });
 
   describe('createLabResult', () => {
-    it('should save lab result when appointment exists', async () => {
-      const dto: CreateLabResultDto = {
-        patient_id: 1,
-        doctor_id: 2,
-        appointment_id: 99,
-        test_type: 'Blood',
-        test_name: 'Hemoglobin',
-        result: '13.5',
-        result_date: '2025-06-01T10:00:00Z',
-        notes: 'All good',
-      };
-      (appointmentRepo.findOne as jest.Mock).mockResolvedValue({});
+    const dto: CreateLabResultDto = {
+      patient_id: 2,
+      doctor_id: 1,
+      appointment_id: 10,
+      test_type: 'blood',
+      test_name: 'CBC',
+      result: 'Positive',
+      result_date: new Date().toISOString(),
+      notes: '',
+    };
+
+    it('creates lab result and logs event', async () => {
+      appointmentsRepo.findOne.mockResolvedValueOnce({} as Appointments);
+      labResultsRepo.save.mockResolvedValueOnce({ lab_result_id: 100 } as any);
+      alsService.getTokenPayloadAndIpAddress.mockResolvedValueOnce({
+        ipAddress: '10.0.0.1',
+      });
 
       await service.createLabResult(
-        { id: 2, role: UserRole.DOCTOR } as UserTokenPayload,
+        { id: 1, role: UserRole.DOCTOR } as UserTokenPayload,
         dto
       );
 
-      expect(labRepo.save).toHaveBeenCalledWith(
+      expect(appointmentsRepo.findOne).toHaveBeenCalledWith({
+        where: {
+          appointment_id: dto.appointment_id,
+          doctor_id: dto.doctor_id,
+          patient_id: dto.patient_id,
+        },
+      });
+      expect(labResultsRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          test_type: 'Blood',
+          test_type: 'blood',
         })
+      );
+      expect(queue.add).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(ActivityLogEvent)
       );
     });
 
-    it('should throw BadRequest if appointment is invalid', async () => {
-      const dto = {
-        patient_id: 1,
-        doctor_id: 2,
-        appointment_id: 88,
-        test_type: 'MRI',
-        test_name: 'Brain Scan',
-        result_date: '2025-06-01T10:00:00Z',
-        notes: 'Clear',
-      } as CreateLabResultDto;
-
-      (appointmentRepo.findOne as jest.Mock).mockResolvedValue(null);
-
+    it('throws if appointment does not exist', async () => {
+      appointmentsRepo.findOne.mockResolvedValueOnce(null);
       await expect(
         service.createLabResult(
-          { id: 2, role: UserRole.DOCTOR } as UserTokenPayload,
+          { id: 1, role: UserRole.DOCTOR } as UserTokenPayload,
           dto
         )
       ).rejects.toThrow(BadRequestException);
@@ -91,30 +146,37 @@ describe('LabResultService', () => {
   });
 
   describe('updateLabResult', () => {
-    it('should update if record found', async () => {
-      labRepo.update.mockResolvedValue({ affected: 1 } as UpdateResult);
+    const updateDto: UpdateLabResultDto = { result: 'Updated' };
 
-      await expect(
-        service.updateLabResult(
-          { id: 2, role: UserRole.DOCTOR } as UserTokenPayload,
-          1,
-          {
-            result: 'Updated',
-          }
-        )
-      ).resolves.toBeUndefined();
+    it('updates lab result and logs event', async () => {
+      labResultsRepo.update.mockResolvedValueOnce({ affected: 1 } as any);
+      alsService.getTokenPayloadAndIpAddress.mockResolvedValueOnce({
+        ipAddress: '10.0.0.2',
+      });
+
+      await service.updateLabResult(
+        { id: 1, role: UserRole.DOCTOR } as UserTokenPayload,
+        42,
+        updateDto
+      );
+
+      expect(labResultsRepo.update).toHaveBeenCalledWith(
+        expect.objectContaining({ lab_result_id: 42, doctor_id: 1 }),
+        updateDto
+      );
+      expect(queue.add).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(ActivityLogEvent)
+      );
     });
 
-    it('should throw NotFound if no update affected', async () => {
-      labRepo.update.mockResolvedValue({ affected: 0 } as UpdateResult);
-
+    it('throws if update affected 0 rows', async () => {
+      labResultsRepo.update.mockResolvedValueOnce({ affected: 0 } as any);
       await expect(
         service.updateLabResult(
-          { id: 2, role: UserRole.DOCTOR } as UserTokenPayload,
-          1,
-          {
-            result: 'Updated',
-          }
+          { id: 1, role: UserRole.DOCTOR } as UserTokenPayload,
+          999,
+          updateDto
         )
       ).rejects.toThrow(NotFoundException);
     });

@@ -6,8 +6,8 @@ export class AsyncLocalStorageService {
     new AsyncLocalStorage();
 
   async getTokenPayloadAndIpAddress(): Promise<{
-    tokenPayload: UserTokenPayload;
-    ipAddress: string;
+    tokenPayload?: UserTokenPayload;
+    ipAddress?: string;
   }> {
     const store = await this.asyncLocalStorage.getStore();
 

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PatientService } from '../patient.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
+  ActivityLogEvent,
   CreatePatientDto,
   PatientDetails,
   UpdatePatientDetailsDto,
@@ -16,6 +17,7 @@ import { CommonPatientService } from '@med-center-crm/patient';
 import { ForbiddenException } from '@nestjs/common';
 import { createMock } from '@golevelup/ts-jest';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('PatientService', () => {
   let service: PatientService;
@@ -39,6 +41,12 @@ describe('PatientService', () => {
           provide: getRepositoryToken(PatientDetails),
           useValue: {
             update: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken(ActivityLogEvent.queue),
+          useValue: {
+            add: jest.fn(),
           },
         },
       ],

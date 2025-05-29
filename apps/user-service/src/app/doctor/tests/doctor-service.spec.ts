@@ -10,12 +10,14 @@ import {
   UserRole,
   Users,
   UserGender,
+  ActivityLogEvent,
 } from '@med-center-crm/types';
 import { CommonUserService, UserNotFoundException } from '@med-center-crm/user';
 import { ForbiddenException } from '@nestjs/common';
 import { UserTokenPayload } from '@med-center-crm/auth';
 import { Repository } from 'typeorm';
 import { createMock } from '@golevelup/ts-jest';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('DoctorService', () => {
   let service: DoctorService;
@@ -49,6 +51,12 @@ describe('DoctorService', () => {
           provide: getRepositoryToken(DoctorDetails),
           useValue: {
             update: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken(ActivityLogEvent.queue),
+          useValue: {
+            add: jest.fn(),
           },
         },
       ],

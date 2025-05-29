@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AdminService } from '../admin.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import {
+  ActivityLogEvent,
   CreateUserDto,
   UpdateUserContactDto,
   UpdateUserGeneralDto,
@@ -13,6 +14,7 @@ import { CommonUserService } from '@med-center-crm/user';
 import { ForbiddenException } from '@nestjs/common';
 import { UserTokenPayload } from '@med-center-crm/auth';
 import { createMock } from '@golevelup/ts-jest';
+import { getQueueToken } from '@nestjs/bullmq';
 
 describe('AdminService', () => {
   let service: AdminService;
@@ -29,6 +31,12 @@ describe('AdminService', () => {
               transaction: jest.fn().mockImplementation(async (cb) => cb({})),
             },
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken(ActivityLogEvent.queue),
+          useValue: {
+            add: jest.fn(),
           },
         },
       ],

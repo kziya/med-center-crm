@@ -8,9 +8,12 @@ import {
   AppointmentDetails,
   AppointmentStatus,
   UserRole,
+  ActivityLogEvent,
 } from '@med-center-crm/types';
 import { AppointmentService } from '../appointment.service';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { getQueueToken } from '@nestjs/bullmq';
+import { createMock } from '@golevelup/ts-jest';
 
 describe('AppointmentService', () => {
   let service: AppointmentService;
@@ -47,8 +50,16 @@ describe('AppointmentService', () => {
             createQueryBuilder: jest.fn(),
           },
         },
+        {
+          provide: getQueueToken(ActivityLogEvent.queue),
+          useValue: {
+            add: jest.fn(),
+          },
+        },
       ],
-    }).compile();
+    })
+      .useMocker(createMock)
+      .compile();
 
     service = module.get<AppointmentService>(AppointmentService);
     appointmentRepo = module.get(getRepositoryToken(Appointments));
