@@ -16,6 +16,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@med-center-crm/async-local-storage": [
+        "libs/async-local-storage/src/index.ts"
+      ],
       "@med-center-crm/auth": ["libs/auth/src/index.ts"],
       "@med-center-crm/common": ["libs/common/src/index.ts"],
       "@med-center-crm/patient": ["libs/patient/src/index.ts"],
