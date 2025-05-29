@@ -188,7 +188,7 @@ export class PatientService {
       await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
 
     const event = new ActivityLogEvent({
-      action_type: ActivityActionType.CREATE,
+      action_type: ActivityActionType.UPDATE,
       entity_id: id,
       entity_type: ActivityEntityType.PATIENT_DETAIL,
       ip_address: ipAddress,

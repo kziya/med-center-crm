@@ -8,6 +8,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import {
+  ActivityActionType,
+  ActivityEntityType,
+  ActivityLogEvent,
   Appointments,
   CreateLabResultDto,
   GetLabResultListDto,
@@ -16,6 +19,9 @@ import {
   UserRole,
 } from '@med-center-crm/types';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
 
 @Injectable()
 export class LabResultService {
@@ -23,7 +29,10 @@ export class LabResultService {
     @InjectRepository(LabResults)
     private readonly labResultsRepository: Repository<LabResults>,
     @InjectRepository(Appointments)
-    private readonly appointmentsRepository: Repository<Appointments>
+    private readonly appointmentsRepository: Repository<Appointments>,
+    @InjectQueue(ActivityLogEvent.queue)
+    private readonly activityLogEventQueue: Queue<ActivityLogEvent>,
+    private readonly asyncLocalStorageService: AsyncLocalStorageService
   ) {}
 
   async getLabResultList(
@@ -84,7 +93,7 @@ export class LabResultService {
       );
     }
 
-    await this.labResultsRepository.save({
+    const labResult = await this.labResultsRepository.save({
       patient_id: createLabResultDto.patient_id,
       doctor_id: createLabResultDto.doctor_id,
       appointment_id: createLabResultDto.appointment_id,
@@ -94,6 +103,22 @@ export class LabResultService {
       result_date: createLabResultDto.result_date,
       notes: createLabResultDto.notes,
     });
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_id: labResult.lab_result_id,
+      entity_type: ActivityEntityType.LAB_RESULT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: createLabResultDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   async updateLabResult(
@@ -117,6 +142,22 @@ export class LabResultService {
     if (result.affected === 0) {
       throw new NotFoundException('Lab result not found or access denied');
     }
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.CREATE,
+      entity_id: labResultId,
+      entity_type: ActivityEntityType.LAB_RESULT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: updateLabResultDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   private async validateExistsAppointment(

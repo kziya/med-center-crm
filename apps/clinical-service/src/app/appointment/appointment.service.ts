@@ -7,6 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import {
+  ActivityActionType,
+  ActivityEntityType,
+  ActivityLogEvent,
   AppointmentDetails,
   Appointments,
   AppointmentStatus,
@@ -20,6 +23,9 @@ import {
   UserRole,
 } from '@med-center-crm/types';
 import { UserTokenPayload } from '@med-center-crm/auth';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
 
 @Injectable()
 export class AppointmentService {
@@ -27,7 +33,10 @@ export class AppointmentService {
     @InjectRepository(Appointments)
     private readonly appointmentRepository: Repository<Appointments>,
     @InjectRepository(AppointmentDetails)
-    private readonly appointmentDetailsRepository: Repository<AppointmentDetails>
+    private readonly appointmentDetailsRepository: Repository<AppointmentDetails>,
+    @InjectQueue(ActivityLogEvent.queue)
+    private readonly activityLogEventQueue: Queue<ActivityLogEvent>,
+    private readonly asyncLocalStorageService: AsyncLocalStorageService
   ) {}
 
   async createAppointment(
@@ -35,8 +44,7 @@ export class AppointmentService {
     createAppointmentDto: CreateAppointmentDto
   ): Promise<Appointments> {
     this.validateAccess(tokenPayload, createAppointmentDto.patient_id);
-
-    return this.appointmentRepository.manager.transaction(
+    const createResult = await this.appointmentRepository.manager.transaction(
       async (transactionManager) => {
         const appointment = await transactionManager.save(Appointments, {
           patient_id: createAppointmentDto.patient_id,
@@ -64,6 +72,24 @@ export class AppointmentService {
         return appointment;
       }
     );
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.CREATE,
+      entity_id: createResult.appointment_id,
+      entity_type: ActivityEntityType.APPOINTMENT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: createAppointmentDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
+
+    return createResult;
   }
 
   async getAppointmentList(
@@ -167,6 +193,22 @@ export class AppointmentService {
     if (result.affected === 0) {
       throw new NotFoundException('Appointment not found or access denied');
     }
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_id: appointmentId,
+      entity_type: ActivityEntityType.APPOINTMENT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: updateAppointmentGeneralDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   async updateAppointmentStatus(
@@ -190,6 +232,22 @@ export class AppointmentService {
     if (result.affected === 0) {
       throw new NotFoundException('Appointment not found or access denied');
     }
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_id: appointmentId,
+      entity_type: ActivityEntityType.APPOINTMENT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: updateAppointmentStatusDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   async updateAppointmentDetails(
@@ -219,6 +277,22 @@ export class AppointmentService {
     if (result.affected === 0) {
       throw new NotFoundException('Appointment not found or access denied');
     }
+
+    const { ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.UPDATE,
+      entity_id: appointmentId,
+      entity_type: ActivityEntityType.APPOINTMENT,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: updateAppointmentDetailsDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
   }
 
   private validateAccess(tokenPayload: UserTokenPayload, id: number): void {
