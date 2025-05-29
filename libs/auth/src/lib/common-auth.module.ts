@@ -1,9 +1,10 @@
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 
 import { CommonRoleGuard } from './guards/common-role.guard';
 import { CommonAuthGuard } from './guards';
 import { CommonAuthStrategy } from './strategies';
+import { SetAsyncContextInterceptor } from './interceptors/async-context.interceptor';
 
 @Module({
   providers: [
@@ -15,6 +16,10 @@ import { CommonAuthStrategy } from './strategies';
     {
       provide: APP_GUARD,
       useClass: CommonRoleGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SetAsyncContextInterceptor,
     },
   ],
 })

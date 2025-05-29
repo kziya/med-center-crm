@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 
 import {
+  ActivityLogEvent,
   UserContacts,
   Users,
   VerificationSendNotificationEvent,
@@ -12,9 +13,14 @@ import { CommonUserService } from './user.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Users, UserContacts]),
-    BullModule.registerQueue({
-      name: VerificationSendNotificationEvent.queue,
-    }),
+    BullModule.registerQueue(
+      {
+        name: VerificationSendNotificationEvent.queue,
+      },
+      {
+        name: ActivityLogEvent.queue,
+      }
+    ),
   ],
   providers: [CommonUserService],
   exports: [CommonUserService],
