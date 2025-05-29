@@ -19,7 +19,5 @@ import { PatientModule } from './patient/patient.module';
     PatientModule,
     BullModule.forRootAsync(BullMQConfig),
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

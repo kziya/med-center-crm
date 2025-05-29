@@ -7,6 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import {
+  ActivityActionType,
+  ActivityEntityType,
+  ActivityLogEvent,
   CreatePatientDto,
   DoctorPatientAssignment,
   GetUserListDto,
@@ -23,6 +26,9 @@ import { UserTokenPayload } from '@med-center-crm/auth';
 import { CommonUserService } from '@med-center-crm/user';
 import { CommonPatientService } from '@med-center-crm/patient';
 import { UserNotFoundException } from '@med-center-crm/user';
+import { Queue } from 'bullmq';
+import { AsyncLocalStorageService } from '@med-center-crm/async-local-storage';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @Injectable()
 export class PatientService {
@@ -31,7 +37,10 @@ export class PatientService {
     private readonly commonUserService: CommonUserService,
     private readonly commonPatientService: CommonPatientService,
     @InjectRepository(PatientDetails)
-    private readonly patientDetailsRepository: Repository<PatientDetails>
+    private readonly patientDetailsRepository: Repository<PatientDetails>,
+    @InjectQueue(ActivityLogEvent.queue)
+    private readonly activityLogEventQueue: Queue<ActivityLogEvent>,
+    private readonly asyncLocalStorageService: AsyncLocalStorageService
   ) {}
 
   async getPatientById(
@@ -174,6 +183,22 @@ export class PatientService {
     if (result.affected === 0) {
       throw new UserNotFoundException();
     }
+
+    const { tokenPayload, ipAddress } =
+      await this.asyncLocalStorageService.getTokenPayloadAndIpAddress();
+
+    const event = new ActivityLogEvent({
+      action_type: ActivityActionType.CREATE,
+      entity_id: id,
+      entity_type: ActivityEntityType.PATIENT_DETAIL,
+      ip_address: ipAddress,
+      user_id: tokenPayload.id,
+      metadata: {
+        newData: updatePatientDetailsDto,
+      },
+    });
+
+    await this.activityLogEventQueue.add(event.name, event);
 
     return;
   }
