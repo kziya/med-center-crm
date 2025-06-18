@@ -54,6 +54,19 @@ services:
       - REDIS_URL=redis://redis:6379
       - MAIL_TRANSPORTER_URL=smtps://urlshortenermailer00@gmail.com:kxselprlukqheqtj@smtp.gmail.com
 
+  activity-service:
+    build:
+      context: .
+      dockerfile: apps/activity-service/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - JWT_ACCESS_TOKEN_SECRET=some-secret
+      - POSTGRES_URL=postgresql://root:root@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+
+
   postgres:
     image: postgres:17
     container_name: postgres_db

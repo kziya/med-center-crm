@@ -28,7 +28,9 @@ export class ActivityService {
       limit = 50,
     } = getActivityLogListDto;
 
-    const query = this.activityLogRepository.createQueryBuilder('log');
+    const query = this.activityLogRepository
+      .createQueryBuilder('log')
+      .select('*');
 
     if (user_id) {
       query.andWhere('log.user_id = :user_id', { user_id });
@@ -57,7 +59,7 @@ export class ActivityService {
     return query
       .orderBy('log.activity_log_id', 'DESC')
       .limit(Math.min(limit, 100))
-      .getMany();
+      .execute();
   }
 
   async createActivityLog(event: ActivityLogEvent): Promise<void> {

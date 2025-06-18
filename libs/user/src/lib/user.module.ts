@@ -8,11 +8,13 @@ import {
   Users,
   VerificationSendNotificationEvent,
 } from '@med-center-crm/types';
+import { AsyncLocalStorageModule } from '@med-center-crm/async-local-storage';
 import { CommonUserService } from './user.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Users, UserContacts]),
+    AsyncLocalStorageModule,
     BullModule.registerQueue(
       {
         name: VerificationSendNotificationEvent.queue,

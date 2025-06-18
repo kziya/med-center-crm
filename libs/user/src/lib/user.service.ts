@@ -195,6 +195,7 @@ export class CommonUserService {
         newData: updateUserContactDto,
       },
     });
+    console.log('Event', event);
 
     await this.activityLogEventQueue.add(event.name, event);
   }
