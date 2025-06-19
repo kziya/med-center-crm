@@ -33,10 +33,11 @@ describe('ActivityService', () => {
   describe('getActivityLogList', () => {
     it('should build query with filters and return logs', async () => {
       const mockQueryBuilder: any = {
+        select: jest.fn().mockReturnThis(),
         andWhere: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockResolvedValue(['log1', 'log2']),
+        execute: jest.fn().mockResolvedValue(['log1', 'log2']),
       };
       (repo.createQueryBuilder as jest.Mock).mockReturnValue(mockQueryBuilder);
 
